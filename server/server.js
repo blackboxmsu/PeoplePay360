@@ -44,8 +44,17 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`[Server] PeoplePay360 API running on http://localhost:${PORT}`);
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`\n⚠️  [Server Error] Port ${PORT} is already in use by another process.`);
+    console.warn(`   Run "npx kill-port 5000" or close the other terminal running the server.\n`);
+  } else {
+    console.error('[Server Error]', err.message);
+  }
 });
 
 export default app;

@@ -14,8 +14,11 @@ import {
   Phone,
   Building,
   Briefcase,
-  UserCheck
+  UserCheck,
+  Shield,
+  Info
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const INITIAL_EMPLOYEES = [
   {
@@ -89,6 +92,7 @@ const INITIAL_EMPLOYEES = [
 ];
 
 export default function EmployeesPage() {
+  const { user, isEmployee } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const viewMode = searchParams.get('view') || 'kanban';
@@ -96,6 +100,214 @@ export default function EmployeesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [activeTab, setActiveTab] = useState('work'); // 'work' | 'private'
+
+  const ownEmployeeRecord = {
+    id: 'emp-self',
+    initials: user?.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'RP',
+    name: user?.name || 'Rohan Patel',
+    jobPosition: 'Junior Software Engineer',
+    department: 'Engineering',
+    manager: 'Sara Khan (HR Manager)',
+    workingSchedule: '40 Hours / Week (09:00 - 18:00)',
+    company: 'OxP Pvt Ltd',
+    workLocation: 'Mumbai Tech Hub',
+    status: 'Active',
+    workEmail: user?.email || 'employee@peoplepay360.com',
+    phone: '+91 98765 43219',
+    contractsCount: 1,
+    attendanceCount: 18,
+    timeOffCount: 2,
+    allocatedLeaves: 20,
+    leaveBalance: 16
+  };
+
+  // If logged in as Employee, show personal profile only (read-only self-service)
+  if (isEmployee) {
+    const emp = ownEmployeeRecord;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Top Header with RBAC notice */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                My Employee Profile
+              </h1>
+              <span className="status-pill active" style={{ fontSize: '0.75rem' }}>
+                <Shield size={12} />
+                <span>Self-Service View</span>
+              </span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              View your personal employee details, contract working schedule, and leave balances.
+            </p>
+          </div>
+
+          {/* Quick Leave Balance Widget */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '10px 18px'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+                Leave Balance
+              </div>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#059669' }}>
+                {emp.leaveBalance} Days
+              </div>
+            </div>
+            <div style={{ borderLeft: '1px solid var(--border-subtle)', height: '28px' }} />
+            <div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
+                Annual Quota
+              </div>
+              <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                {emp.allocatedLeaves} Days
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smart Buttons */}
+        <div className="smart-buttons-bar" style={{ margin: 0 }}>
+          <button
+            type="button"
+            className="smart-button"
+            onClick={() => navigate('/timeoff/requests')}
+            title="Open My Time Off"
+          >
+            <CalendarDays size={16} style={{ color: '#059669' }} />
+            <span>My Time Off</span>
+            <span className="smart-button-count">{emp.timeOffCount}</span>
+          </button>
+
+          <button
+            type="button"
+            className="smart-button"
+            onClick={() => navigate('/attendance')}
+            title="Open My Attendance"
+          >
+            <Clock size={16} style={{ color: '#059669' }} />
+            <span>My Attendance</span>
+            <span className="smart-button-count">{emp.attendanceCount}</span>
+          </button>
+        </div>
+
+        {/* Form Card (Read-Only) */}
+        <div className="odoo-form-card">
+          <div className="odoo-form-header">
+            <div className="form-profile-box">
+              <div className="form-avatar-circle">
+                {emp.initials}
+              </div>
+              <div className="form-title-group">
+                <h2>{emp.name}</h2>
+                <p className="form-title-sub">
+                  {emp.jobPosition} • {emp.department} &nbsp;|&nbsp; {emp.workEmail} &nbsp;|&nbsp; {emp.phone}
+                </p>
+              </div>
+            </div>
+
+            <div className="status-pill active" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+              <Info size={13} />
+              <span>Read-Only Profile</span>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="form-tabs">
+            <button
+              type="button"
+              className={`form-tab-btn ${activeTab === 'work' ? 'active' : ''}`}
+              onClick={() => setActiveTab('work')}
+            >
+              Work Information
+            </button>
+            <button
+              type="button"
+              className={`form-tab-btn ${activeTab === 'private' ? 'active' : ''}`}
+              onClick={() => setActiveTab('private')}
+            >
+              Private Information
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'work' ? (
+            <div className="form-grid-2col">
+              <div className="field-group">
+                <label className="field-label">Department</label>
+                <input className="field-input" value={emp.department} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Job Position</label>
+                <input className="field-input" value={emp.jobPosition} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Reporting Manager</label>
+                <input className="field-input" value={emp.manager} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Work Location</label>
+                <input className="field-input" value={emp.workLocation} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Working Schedule</label>
+                <input className="field-input" value={emp.workingSchedule} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Employment Status</label>
+                <div>
+                  <span className="status-pill active">● {emp.status}</span>
+                </div>
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Company</label>
+                <input className="field-input" value={emp.company} readOnly />
+              </div>
+
+              <div className="field-group">
+                <label className="field-label">Work Email</label>
+                <input className="field-input" value={emp.workEmail} readOnly />
+              </div>
+            </div>
+          ) : (
+            <div className="form-grid-2col">
+              <div className="field-group">
+                <label className="field-label">Personal Phone</label>
+                <input className="field-input" value={emp.phone} readOnly />
+              </div>
+              <div className="field-group">
+                <label className="field-label">Bank Account Status</label>
+                <div>
+                  <span className="status-pill active">Verified</span>
+                </div>
+              </div>
+              <div className="field-group">
+                <label className="field-label">Nationality</label>
+                <input className="field-input" value="Indian" readOnly />
+              </div>
+              <div className="field-group">
+                <label className="field-label">Identification No / PAN</label>
+                <input className="field-input" value="ABCDE1234F" readOnly />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const filteredEmployees = INITIAL_EMPLOYEES.filter(emp =>
     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -9,8 +9,11 @@ import {
   AlertTriangle,
   Send,
   Download,
-  X
+  X,
+  Trash2,
+  Shield
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const INITIAL_PAYRUNS = [
   {
@@ -70,6 +73,7 @@ const ELIGIBLE_STAFF = [
 
 export default function PayrunsPage() {
   const navigate = useNavigate();
+  const { canDeletePayruns, isPayrollUser } = useAuth();
   const [payruns, setPayruns] = useState(INITIAL_PAYRUNS);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayrun, setSelectedPayrun] = useState(null);
@@ -186,6 +190,30 @@ export default function PayrunsPage() {
           >
             MARK PAID
           </button>
+
+          {canDeletePayruns && (
+            <button
+              type="button"
+              className="btn-status-action"
+              style={{ color: '#DC2626' }}
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete payrun ${selectedPayrun.name}?`)) {
+                  setPayruns(payruns.filter(p => p.id !== selectedPayrun.id));
+                  setSelectedPayrun(null);
+                }
+              }}
+            >
+              <Trash2 size={14} />
+              <span>DELETE</span>
+            </button>
+          )}
+
+          {isPayrollUser && (
+            <span className="status-pill active" style={{ fontSize: '0.72rem', padding: '3px 8px' }}>
+              <Shield size={12} />
+              <span>HR Payroll User (Compute / Validate / Mark Paid)</span>
+            </span>
+          )}
 
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Status:</span>

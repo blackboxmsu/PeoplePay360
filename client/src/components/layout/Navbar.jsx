@@ -7,7 +7,7 @@ import QuickAttendanceWidget from '../common/QuickAttendanceWidget';
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, role, logout, canAccessPayroll, canManageHR, isEmployeeSelf } = useAuth();
+  const { user, role, logout, canAccessPayroll, canManageHR, canManageUsers, isEmployeeSelf } = useAuth();
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
@@ -102,6 +102,18 @@ export default function Navbar() {
                   </NavLink>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Employee Self-Service: My Details (Visible to employee only) */}
+          {isEmployeeSelf && (
+            <div className="nav-menu-item">
+              <NavLink
+                to="/employees"
+                className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+              >
+                <span>My Details</span>
+              </NavLink>
             </div>
           )}
 
@@ -214,6 +226,18 @@ export default function Navbar() {
                   </NavLink>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Users & Role Management (Restricted to HR Manager and Admin) */}
+          {canManageUsers && (
+            <div className="nav-menu-item">
+              <NavLink
+                to="/users"
+                className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+              >
+                <span>Users</span>
+              </NavLink>
             </div>
           )}
         </nav>

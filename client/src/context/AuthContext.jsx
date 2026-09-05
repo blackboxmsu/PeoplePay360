@@ -122,10 +122,37 @@ export function AuthProvider({ children }) {
 
   const role = user?.role || 'guest';
 
+  // Role booleans
+  const isEmployee = role === 'employee';
+  const isHrManager = role === 'hr_manager';
+  const isPayrollUser = role === 'hr_payroll_user';
+  const isPayrollManager = role === 'hr_payroll_manager';
+  const isAdmin = role === 'admin';
+
   // Helper check methods for role access
   const hasRole = (...roles) => roles.includes(role);
-  const canAccessPayroll = ['hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
+
+  // User management & registration (HR Manager & Admin only, ordinary users cannot register)
+  const canRegisterUsers = ['hr_manager', 'admin'].includes(role);
+  const canManageUsers = ['hr_manager', 'admin'].includes(role);
+
+  // HR module management (Employees, Contracts, Working Schedules, Time Off Allocations & Types)
   const canManageHR = ['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
+
+  // Time off approvals
+  const canApproveTimeOff = ['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
+
+  // Payroll access (Strictly forbidden for Employee & HR Manager)
+  const canAccessPayroll = ['hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
+
+  // Salary structures & rules full CRUD vs Read-Only
+  // HR Payroll User has READ-ONLY access. Only HR Payroll Manager and Admin have Full CRUD.
+  const canEditPayrollStructures = ['hr_payroll_manager', 'admin'].includes(role);
+  const isStructuresReadOnly = role === 'hr_payroll_user';
+
+  // Payruns delete permission: HR Payroll User has Create, Read, Update. Delete is restricted to Manager & Admin.
+  const canDeletePayruns = ['hr_payroll_manager', 'admin'].includes(role);
+
   const isEmployeeSelf = role === 'employee';
 
   return (
@@ -141,8 +168,19 @@ export function AuthProvider({ children }) {
         quickDemoLogin,
         logout,
         hasRole,
+        isEmployee,
+        isHrManager,
+        isPayrollUser,
+        isPayrollManager,
+        isAdmin,
+        canRegisterUsers,
+        canManageUsers,
         canAccessPayroll,
         canManageHR,
+        canApproveTimeOff,
+        canEditPayrollStructures,
+        isStructuresReadOnly,
+        canDeletePayruns,
         isEmployeeSelf
       }}
     >

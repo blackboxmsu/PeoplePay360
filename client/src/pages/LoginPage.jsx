@@ -174,9 +174,21 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '16px' }}>
-          Accounts are managed by the administrator. Access is role-protected.
-        </p>
+        <div style={{
+          marginTop: '16px',
+          padding: '10px 12px',
+          backgroundColor: 'var(--bg-green-soft)',
+          border: '1px solid var(--border-green)',
+          borderRadius: 'var(--radius-md)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '8px'
+        }}>
+          <Shield size={16} style={{ color: '#059669', flexShrink: 0, marginTop: '2px' }} />
+          <p style={{ fontSize: '0.74rem', color: '#065F46', margin: 0, lineHeight: 1.45 }}>
+            <strong>Strict RBAC Enforcement:</strong> Self-registration is disabled. Accounts and roles are provisioned exclusively by authorized <strong>HR Managers</strong> and <strong>Administrators</strong>. Credentials are automatically delivered to work inboxes via <strong>Nodemailer</strong>.
+          </p>
+        </div>
 
         {/* 1-Click Demo Accounts Quick-Switcher for Judges */}
         <div style={{

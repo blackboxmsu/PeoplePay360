@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Plus, ArrowLeft, Edit2 } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Edit2, Lock, Shield } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const INITIAL_STRUCTURES = [
   {
@@ -50,6 +51,7 @@ const INITIAL_STRUCTURES = [
 ];
 
 export default function SalaryStructuresPage() {
+  const { canEditPayrollStructures, isStructuresReadOnly } = useAuth();
   const [structures, setStructures] = useState(INITIAL_STRUCTURES);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStructure, setSelectedStructure] = useState(null);
@@ -79,10 +81,17 @@ export default function SalaryStructuresPage() {
             </span>
           </div>
 
-          <button type="button" className="btn-action-primary">
-            <Edit2 size={15} />
-            <span>EDIT</span>
-          </button>
+          {canEditPayrollStructures ? (
+            <button type="button" className="btn-action-primary">
+              <Edit2 size={15} />
+              <span>EDIT</span>
+            </button>
+          ) : (
+            <span className="status-pill draft" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+              <Lock size={12} />
+              <span>Read-Only Mode (HR Payroll User)</span>
+            </span>
+          )}
         </div>
 
         <div className="odoo-form-card">
@@ -161,20 +170,60 @@ export default function SalaryStructuresPage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-          Salary Structures
-        </h1>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            Salary Structures
+          </h1>
+          {isStructuresReadOnly && (
+            <span className="status-pill draft" style={{ fontSize: '0.75rem' }}>
+              <Lock size={12} />
+              <span>Read-Only Mode</span>
+            </span>
+          )}
+        </div>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
           Structures group salary rules; rules define the ordered salary computation used by a payslip
         </p>
       </div>
 
+      {isStructuresReadOnly && (
+        <div style={{
+          backgroundColor: '#FFFBEB',
+          border: '1px solid #FDE68A',
+          color: '#92400E',
+          borderRadius: 'var(--radius-md)',
+          padding: '10px 14px',
+          fontSize: '0.825rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <Lock size={15} style={{ flexShrink: 0 }} />
+          <span>
+            <strong>Role Scope Notice:</strong> As an <strong>HR Payroll User</strong>, you have Read-Only access to Salary Structures and Salary Rules. Full CRUD configurations require an <strong>HR Payroll Manager</strong> or <strong>Admin</strong>.
+          </span>
+        </div>
+      )}
+
       <div className="odoo-control-bar">
         <div className="control-bar-left">
-          <button type="button" className="btn-action-primary">
-            <Plus size={16} />
-            <span>NEW</span>
-          </button>
+          {canEditPayrollStructures ? (
+            <button type="button" className="btn-action-primary">
+              <Plus size={16} />
+              <span>NEW</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn-action-primary"
+              disabled
+              style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              title="Read-only access for HR Payroll User"
+            >
+              <Lock size={14} />
+              <span>NEW (Locked)</span>
+            </button>
+          )}
 
           <div className="search-input-box">
             <Search size={16} />

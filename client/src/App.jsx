@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import ContractsPage from './pages/ContractsPage';
 import AttendancePage from './pages/AttendancePage';
+import UsersPage from './pages/UsersPage';
 
 // Time Off Sub-pages
 import TimeOffRequestsPage from './pages/timeoff/TimeOffRequestsPage';
@@ -43,11 +44,11 @@ export default function App() {
             {/* Dashboard (All authenticated roles) */}
             <Route path="/" element={<DashboardPage />} />
 
-            {/* Employees (HR & Payroll & Admin) */}
+            {/* Employees & Profile (Employee Self-Service + HR/Payroll/Admin Directory) */}
             <Route
               path="/employees"
               element={
-                <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                <ProtectedRoute allowedRoles={['employee', 'hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                   <EmployeesPage />
                 </ProtectedRoute>
               }
@@ -126,6 +127,16 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                   <SalaryRulesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Users & Role Management (HR Manager & Admin only) */}
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute allowedRoles={['hr_manager', 'admin']}>
+                  <UsersPage />
                 </ProtectedRoute>
               }
             />

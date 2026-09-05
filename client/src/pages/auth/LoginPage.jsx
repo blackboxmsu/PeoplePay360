@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth, DEMO_CREDENTIALS } from '../context/AuthContext';
+import { useAuth, DEMO_CREDENTIALS } from '../../context/AuthContext';
 import { Shield, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {

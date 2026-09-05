@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, Plus, ArrowLeft, Edit2, FileText, CheckCircle, Save, X, AlertTriangle, Clock } from 'lucide-react';
-import store from '../services/dataStore';
-import { useAuth } from '../context/AuthContext';
+import store from '../../services/dataStore';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ContractsPage() {
   const { canManageHR, isEmployeeSelf, user } = useAuth();

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { downloadPayslipPDF } from '../utils/pdfGenerator';
+import { useAuth } from '../../context/AuthContext';
+import { downloadPayslipPDF } from '../../utils/pdfGenerator';
 import {
   IndianRupee,
   Users,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import store from '../services/dataStore';
+import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
 import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield, Save, X } from 'lucide-react';
 
 export default function AttendancePage() {

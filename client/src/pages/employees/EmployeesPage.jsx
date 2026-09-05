@@ -20,8 +20,8 @@ import {
   Save,
   X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import store from '../services/dataStore';
+import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
 
 export default function EmployeesPage() {
   const { user, isEmployee, canManageHR, role } = useAuth();

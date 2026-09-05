@@ -1,30 +1,26 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import AppShell from './components/layout/AppShell';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import { AuthProvider } from './context';
+import { AppShell } from './components/layout';
+import { ProtectedRoute } from './components/common';
 
-// Auth Page
-import LoginPage from './pages/LoginPage';
-
-// Core Pages
-import DashboardPage from './pages/DashboardPage';
-import EmployeesPage from './pages/EmployeesPage';
-import ContractsPage from './pages/ContractsPage';
-import WorkingSchedulesPage from './pages/WorkingSchedulesPage';
-import AttendancePage from './pages/AttendancePage';
-import UsersPage from './pages/UsersPage';
-
-// Time Off Sub-pages
-import TimeOffRequestsPage from './pages/timeoff/TimeOffRequestsPage';
-import TimeOffAllocationsPage from './pages/timeoff/TimeOffAllocationsPage';
-import TimeOffTypesPage from './pages/timeoff/TimeOffTypesPage';
-
-// Payroll Sub-pages
-import PayrunsPage from './pages/payroll/PayrunsPage';
-import PayslipsPage from './pages/payroll/PayslipsPage';
-import SalaryStructuresPage from './pages/payroll/SalaryStructuresPage';
-import SalaryRulesPage from './pages/payroll/SalaryRulesPage';
+// Application Pages (Imported cleanly from pages domain barrel)
+import {
+  LoginPage,
+  DashboardPage,
+  EmployeesPage,
+  ContractsPage,
+  WorkingSchedulesPage,
+  AttendancePage,
+  UsersPage,
+  TimeOffRequestsPage,
+  TimeOffAllocationsPage,
+  TimeOffTypesPage,
+  PayrunsPage,
+  PayslipsPage,
+  SalaryStructuresPage,
+  SalaryRulesPage
+} from './pages';
 
 export default function App() {
   return (

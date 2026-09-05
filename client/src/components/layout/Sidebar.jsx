@@ -67,6 +67,15 @@ export default function Sidebar({ userRole = 'HR Payroll Manager', userName = 'A
           <span className="nav-item-text">Contracts</span>
         </NavLink>
 
+        {/* Working Schedules */}
+        <NavLink
+          to="/schedules"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <span className="nav-item-icon"><Clock size={18} /></span>
+          <span className="nav-item-text">Working Schedules</span>
+        </NavLink>
+
         {/* Attendance */}
         <NavLink
           to="/attendance"

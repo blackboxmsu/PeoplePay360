@@ -1,61 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Search, Plus, ArrowLeft, Check, X, Calendar, Clock, Shield, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-
-const INITIAL_REQUESTS = [
-  {
-    id: 'req-4',
-    employeeName: 'Rohan Patel',
-    type: 'Paid Time Off',
-    startDate: '22-Sep-2026',
-    endDate: '23-Sep-2026',
-    duration: '2 Days',
-    status: 'To Approve',
-    approver: 'Sara Khan',
-    allocationUsed: 'Paid Time Off 2026',
-    reason: 'Personal family emergency'
-  },
-  {
-    id: 'req-1',
-    employeeName: 'Aarav Mehta',
-    type: 'Paid Time Off',
-    startDate: '12-Sep-2026',
-    endDate: '14-Sep-2026',
-    duration: '3 Days',
-    status: 'Approved',
-    approver: 'Sara Khan',
-    allocationUsed: 'Paid Time Off 2026',
-    reason: 'Family vacation'
-  },
-  {
-    id: 'req-2',
-    employeeName: 'Sara Khan',
-    type: 'Sick Leave',
-    startDate: '18-Sep-2026',
-    endDate: '18-Sep-2026',
-    duration: '1 Day',
-    status: 'Approved',
-    approver: 'Aditi Roy',
-    allocationUsed: 'None (Direct)',
-    reason: 'Doctor consultation'
-  },
-  {
-    id: 'req-3',
-    employeeName: 'John Dsouza',
-    type: 'Comp Off',
-    startDate: '27-Sep-2026',
-    endDate: '27-Sep-2026',
-    duration: '1 Day',
-    status: 'To Approve',
-    approver: 'Rahul Verma',
-    allocationUsed: 'Comp Off Balance',
-    reason: 'Weekend release deployment support'
-  }
-];
+import store from '../../services/dataStore';
 
 export default function TimeOffRequestsPage() {
   const { user, isEmployee, canApproveTimeOff } = useAuth();
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const employeeFilter = searchParams.get('employee') || '';
+
+  const [requests, setRequests] = useState(store.getTimeOffRequests());
+  const [timeOffTypes, setTimeOffTypes] = useState(store.getTimeOffTypes());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
 
@@ -67,11 +22,21 @@ export default function TimeOffRequestsPage() {
   const [duration, setDuration] = useState('2 Days');
   const [reason, setReason] = useState('');
 
+  useEffect(() => {
+    const unsub = store.subscribe(() => {
+      setRequests([...store.getTimeOffRequests()]);
+      setTimeOffTypes([...store.getTimeOffTypes()]);
+    });
+    return unsub;
+  }, []);
+
+  // Requirement A4: Approved leave requests automatically deduct from assigned allocations
   const handleStatusChange = (id, newStatus) => {
     if (!canApproveTimeOff) return;
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    store.updateRequestStatus(id, newStatus);
     if (selectedRequest && selectedRequest.id === id) {
-      setSelectedRequest(prev => ({ ...prev, status: newStatus }));
+      const updated = store.getTimeOffRequests().find((r) => r.id === id);
+      if (updated) setSelectedRequest(updated);
     }
   };
 
@@ -92,26 +57,33 @@ export default function TimeOffRequestsPage() {
       reason: reason || 'Personal leave request'
     };
 
-    setRequests([newReq, ...requests]);
+    store.saveTimeOffRequest(newReq);
     setIsModalOpen(false);
     setSelectedRequest(newReq);
   };
 
-  const filtered = requests.filter(r => {
+  const filtered = requests.filter((r) => {
     if (isEmployee) {
       const currentUserName = (user?.name || 'Rohan Patel').toLowerCase();
-      const isSelf = r.employeeName.toLowerCase().includes(currentUserName) ||
-                     r.employeeName.toLowerCase().includes('rohan');
-      return isSelf && (
-        r.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.type.toLowerCase().includes(searchTerm.toLowerCase())
+      const isSelf =
+        r.employeeName.toLowerCase().includes(currentUserName) ||
+        r.employeeName.toLowerCase().includes('rohan');
+      return (
+        isSelf &&
+        (r.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.type.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
-    return (
+    const matchesSearch =
       r.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      r.type.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      r.type.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesEmployee = employeeFilter
+      ? r.employeeName.toLowerCase() === employeeFilter.toLowerCase()
+      : true;
+
+    return matchesSearch && matchesEmployee;
   });
 
   // Form View (Screenshot 5)
@@ -290,6 +262,22 @@ export default function TimeOffRequestsPage() {
           </div>
         )}
       </div>
+
+      {/* Active Filter Indicator */}
+      {employeeFilter && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', padding: '8px 14px', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: '#1E40AF' }}>
+          <span>Filtered by Employee: <strong>{employeeFilter}</strong></span>
+          <button
+            type="button"
+            className="btn-icon"
+            style={{ width: '20px', height: '20px', padding: 0 }}
+            onClick={() => setSearchParams({})}
+            title="Clear filter"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       <div className="odoo-control-bar">
         <div className="control-bar-left">

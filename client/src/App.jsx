@@ -11,6 +11,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import ContractsPage from './pages/ContractsPage';
+import WorkingSchedulesPage from './pages/WorkingSchedulesPage';
 import AttendancePage from './pages/AttendancePage';
 import UsersPage from './pages/UsersPage';
 
@@ -60,6 +61,16 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                   <ContractsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Working Schedules (HR & Payroll & Admin) */}
+            <Route
+              path="/schedules"
+              element={
+                <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <WorkingSchedulesPage />
                 </ProtectedRoute>
               }
             />

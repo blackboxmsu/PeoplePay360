@@ -100,6 +100,13 @@ export default function Navbar() {
                   >
                     List View
                   </NavLink>
+                  <NavLink
+                    to="/schedules"
+                    className="dropdown-item"
+                    onClick={() => setActiveDropdown(null)}
+                  >
+                    Working Schedules
+                  </NavLink>
                 </div>
               )}
             </div>
@@ -119,14 +126,25 @@ export default function Navbar() {
 
           {/* Contracts ▼ (Hidden for Employee role) */}
           {canManageHR && (
-            <div className="nav-menu-item">
-              <NavLink
-                to="/contracts"
-                className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
-              >
-                <span>Contracts</span>
-              </NavLink>
-            </div>
+            <>
+              <div className="nav-menu-item">
+                <NavLink
+                  to="/contracts"
+                  className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+                >
+                  <span>Contracts</span>
+                </NavLink>
+              </div>
+
+              <div className="nav-menu-item">
+                <NavLink
+                  to="/schedules"
+                  className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+                >
+                  <span>Schedules</span>
+                </NavLink>
+              </div>
+            </>
           )}
 
           {/* Attendance (Visible to all) */}

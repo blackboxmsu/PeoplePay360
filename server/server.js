@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import healthRoutes from './routes/health.routes.js';
+import authRoutes from './routes/auth.routes.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 dotenv.config();
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Routes
 app.use('/api', healthRoutes);
+app.use('/api/auth', authRoutes);
 
 // Root fallback
 app.get('/', (req, res) => {

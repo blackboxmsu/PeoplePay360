@@ -1,8 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import AppShell from './components/layout/AppShell';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
-// Pages
+// Auth Page
+import LoginPage from './pages/LoginPage';
+
+// Core Pages
 import DashboardPage from './pages/DashboardPage';
 import EmployeesPage from './pages/EmployeesPage';
 import ContractsPage from './pages/ContractsPage';
@@ -21,35 +26,115 @@ import SalaryRulesPage from './pages/payroll/SalaryRulesPage';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<DashboardPage />} />
-          <Route path="/employees" element={<EmployeesPage />} />
-          <Route path="/contracts" element={<ContractsPage />} />
-          <Route path="/attendance" element={<AttendancePage />} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Authentication Route */}
+          <Route path="/login" element={<LoginPage />} />
 
-          {/* Time Off Sub-routes */}
-          <Route path="/timeoff">
-            <Route index element={<Navigate to="/timeoff/requests" replace />} />
-            <Route path="requests" element={<TimeOffRequestsPage />} />
-            <Route path="allocations" element={<TimeOffAllocationsPage />} />
-            <Route path="types" element={<TimeOffTypesPage />} />
+          {/* Protected Application Routes */}
+          <Route
+            element={
+              <ProtectedRoute>
+                <AppShell />
+              </ProtectedRoute>
+            }
+          >
+            {/* Dashboard (All authenticated roles) */}
+            <Route path="/" element={<DashboardPage />} />
+
+            {/* Employees (HR & Payroll & Admin) */}
+            <Route
+              path="/employees"
+              element={
+                <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <EmployeesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Contracts (HR & Payroll & Admin) */}
+            <Route
+              path="/contracts"
+              element={
+                <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <ContractsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Attendance (All authenticated roles) */}
+            <Route path="/attendance" element={<AttendancePage />} />
+
+            {/* Time Off Sub-routes */}
+            <Route path="/timeoff">
+              <Route index element={<Navigate to="/timeoff/requests" replace />} />
+              <Route path="requests" element={<TimeOffRequestsPage />} />
+              <Route
+                path="allocations"
+                element={
+                  <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                    <TimeOffAllocationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="types"
+                element={
+                  <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                    <TimeOffTypesPage />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
+
+            {/* Payroll Sub-routes (Payroll roles & Admin only) */}
+            <Route
+              path="/payroll"
+              element={
+                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <Navigate to="/payroll/payruns" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/payruns"
+              element={
+                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <PayrunsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/payslips"
+              element={
+                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <PayslipsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/structures"
+              element={
+                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <SalaryStructuresPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/payroll/rules"
+              element={
+                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <SalaryRulesPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch-all */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-
-          {/* Payroll Sub-routes */}
-          <Route path="/payroll">
-            <Route index element={<Navigate to="/payroll/payruns" replace />} />
-            <Route path="payruns" element={<PayrunsPage />} />
-            <Route path="payslips" element={<PayslipsPage />} />
-            <Route path="structures" element={<SalaryStructuresPage />} />
-            <Route path="rules" element={<SalaryRulesPage />} />
-          </Route>
-
-          {/* Catch-all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

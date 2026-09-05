@@ -24,7 +24,8 @@ import { useAuth } from '../context/AuthContext';
 import store from '../services/dataStore';
 
 export default function EmployeesPage() {
-  const { user, isEmployee, canManageHR } = useAuth();
+  const { user, isEmployee, canManageHR, role } = useAuth();
+  const canCreateEmployee = ['hr_manager', 'admin'].includes(role);
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const viewMode = searchParams.get('view') || 'kanban';
@@ -122,6 +123,7 @@ export default function EmployeesPage() {
 
   const handleSaveModal = (e) => {
     e.preventDefault();
+    if (!canCreateEmployee) return;
     if (!formData.name.trim()) return;
 
     store.saveEmployee(formData);
@@ -434,7 +436,7 @@ export default function EmployeesPage() {
               </div>
             </div>
 
-            {canManageHR && (
+            {canCreateEmployee && (
               <button
                 type="button"
                 className="btn-action-primary"
@@ -566,7 +568,7 @@ export default function EmployeesPage() {
 
       <div className="odoo-control-bar">
         <div className="control-bar-left">
-          {canManageHR && (
+          {canCreateEmployee && (
             <button type="button" className="btn-action-primary" onClick={handleOpenCreateModal}>
               <Plus size={16} />
               <span>NEW</span>

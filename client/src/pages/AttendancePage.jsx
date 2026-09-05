@@ -1,127 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield } from 'lucide-react';
+import store from '../services/dataStore';
+import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield, Save, X } from 'lucide-react';
 
-const INITIAL_ATTENDANCE = [
-  {
-    id: 'att-rohan-1',
-    employeeName: 'Rohan Patel',
+export default function AttendancePage() {
+  const { user, role, isEmployeeSelf } = useAuth();
+  const userName = user?.name || 'Rohan Patel';
+  const canManageAttendance = ['hr_manager', 'admin'].includes(role);
+
+  const [attendanceList, setAttendanceList] = useState(store.getAttendance());
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  // Edit / Create Modal State for HR Manager / Admin
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    id: '',
+    employeeName: '',
     date: '02-Sep-2026',
     checkIn: '09:00',
     checkOut: '18:00',
     workedHours: '9.00',
     status: 'Present',
-    department: 'Engineering',
-    manager: 'Sara Khan',
-    overtime: '0.00 hrs',
-    notes: 'Regular engineering shift completed.'
-  },
-  {
-    id: 'att-rohan-2',
-    employeeName: 'Rohan Patel',
-    date: '01-Sep-2026',
-    checkIn: '09:05',
-    checkOut: '18:15',
-    workedHours: '9.17',
-    status: 'Present',
-    department: 'Engineering',
-    manager: 'Sara Khan',
-    overtime: '0.17 hrs',
-    notes: 'On-time check-in recorded.'
-  },
-  {
-    id: 'att-rohan-3',
-    employeeName: 'Rohan Patel',
-    date: '31-Aug-2026',
-    checkIn: '09:12',
-    checkOut: '18:00',
-    workedHours: '8.80',
-    status: 'Present',
-    department: 'Engineering',
-    manager: 'Sara Khan',
-    overtime: '0.00 hrs',
-    notes: 'Shift completed.'
-  },
-  {
-    id: 'att-1',
-    employeeName: 'Aarav Mehta',
-    date: '02-Sep-2026',
-    checkIn: '09:05',
-    checkOut: '18:10',
-    workedHours: '9.08',
-    status: 'Present',
     department: 'Finance',
     manager: 'Sara Khan',
-    overtime: '0.50 hrs',
+    overtime: '0.00 hrs',
     notes: 'System-generated from check in/out or manually corrected by an authorized user.'
-  },
-  {
-    id: 'att-2',
-    employeeName: 'Sara Khan',
-    date: '02-Sep-2026',
-    checkIn: '09:15',
-    checkOut: '18:02',
-    workedHours: '8.78',
-    status: 'Present',
-    department: 'HR',
-    manager: 'Aditi Roy',
-    overtime: '0.00 hrs',
-    notes: 'Standard daily shift completed.'
-  },
-  {
-    id: 'att-3',
-    employeeName: 'John Dsouza',
-    date: '02-Sep-2026',
-    checkIn: '09:32',
-    checkOut: '17:58',
-    workedHours: '8.43',
-    status: 'Present',
-    department: 'Engineering',
-    manager: 'Rahul Verma',
-    overtime: '0.00 hrs',
-    notes: 'Normal developer shift.'
-  },
-  {
-    id: 'att-4',
-    employeeName: 'Neha Patel',
-    date: '02-Sep-2026',
-    checkIn: '—',
-    checkOut: '—',
-    workedHours: '0.00',
-    status: 'Absent',
-    department: 'HR',
-    manager: 'Sara Khan',
-    overtime: '0.00 hrs',
-    notes: 'Unplanned absence / no punch recorded.'
-  }
-];
+  });
 
-export default function AttendancePage() {
-  const { user, isEmployeeSelf, canManageHR } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAttendance, setSelectedAttendance] = useState(null);
-  const [activeFilter, setActiveFilter] = useState('all');
+  useEffect(() => {
+    const unsub = store.subscribe(() => {
+      setAttendanceList([...store.getAttendance()]);
+    });
+    return unsub;
+  }, []);
 
   // Filter records based on role authorization
   // If role is employee, ONLY show current user's records!
   const baseList = isEmployeeSelf
-    ? INITIAL_ATTENDANCE.filter(a => a.employeeName.toLowerCase() === userName.toLowerCase())
-    : INITIAL_ATTENDANCE;
+    ? attendanceList.filter(a => a.employeeName.toLowerCase() === userName.toLowerCase())
+    : attendanceList;
 
   const filteredAttendance = baseList.filter(a => {
-    const matchesSearch = a.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      a.date.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      (a.employeeName && a.employeeName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (a.date && a.date.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (a.notes && a.notes.toLowerCase().includes(searchTerm.toLowerCase()));
     if (activeFilter === 'today') return matchesSearch && a.date.includes('02-Sep');
     return matchesSearch;
   });
 
-  // Form View (Screenshot 3)
+  const handleOpenEdit = (rec) => {
+    setEditFormData({
+      ...rec,
+      notes: rec.notes || 'System-generated from check in/out or manually corrected by an authorized user.'
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleOpenCreate = () => {
+    setEditFormData({
+      id: `att-${Date.now()}`,
+      employeeName: 'Aarav Mehta',
+      date: '02-Sep-2026',
+      checkIn: '09:05',
+      checkOut: '18:10',
+      workedHours: '9.08',
+      status: 'Present',
+      department: 'Finance',
+      manager: 'Sara Khan',
+      overtime: '0.50 hrs',
+      notes: 'System-generated from check in/out or manually corrected by an authorized user.'
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveAttendance = (e) => {
+    e.preventDefault();
+    if (!canManageAttendance) return;
+    store.saveAttendance(editFormData);
+    if (selectedAttendance && selectedAttendance.id === editFormData.id) {
+      setSelectedAttendance(editFormData);
+    }
+    setIsEditModalOpen(false);
+  };
+
+  // Form View (Matching screenshot: Attendance / Aarav Mehta / 02-Sep-2026)
   if (selectedAttendance) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <button
               type="button"
@@ -138,8 +107,12 @@ export default function AttendancePage() {
             </span>
           </div>
 
-          {canManageHR && (
-            <button type="button" className="btn-action-primary">
+          {canManageAttendance && (
+            <button
+              type="button"
+              className="btn-action-primary"
+              onClick={() => handleOpenEdit(selectedAttendance)}
+            >
               <Edit2 size={15} />
               <span>EDIT</span>
             </button>
@@ -149,11 +122,11 @@ export default function AttendancePage() {
         <div className="odoo-form-card">
           <div className="odoo-form-header">
             <div>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
                 Attendance / {selectedAttendance.employeeName} / {selectedAttendance.date}
               </h2>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                {isEmployeeSelf ? 'Personal attendance punch record' : 'Form view of attendance record'}
+              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Form view of one attendance record
               </p>
             </div>
             <span className={`status-pill ${selectedAttendance.status === 'Present' ? 'active' : 'expired'}`}>
@@ -169,22 +142,30 @@ export default function AttendancePage() {
 
             <div className="field-group">
               <label className="field-label">Department</label>
-              <input className="field-input" value={selectedAttendance.department} readOnly />
+              <input className="field-input" value={selectedAttendance.department || 'General'} readOnly />
             </div>
 
             <div className="field-group">
               <label className="field-label">Check In</label>
-              <input className="field-input" value={`${selectedAttendance.date} ${selectedAttendance.checkIn}`} readOnly />
+              <input
+                className="field-input"
+                value={`${selectedAttendance.date} ${selectedAttendance.checkIn}`}
+                readOnly
+              />
             </div>
 
             <div className="field-group">
               <label className="field-label">Manager</label>
-              <input className="field-input" value={selectedAttendance.manager} readOnly />
+              <input className="field-input" value={selectedAttendance.manager || 'Sara Khan'} readOnly />
             </div>
 
             <div className="field-group">
               <label className="field-label">Check Out</label>
-              <input className="field-input" value={`${selectedAttendance.date} ${selectedAttendance.checkOut}`} readOnly />
+              <input
+                className="field-input"
+                value={selectedAttendance.checkOut && selectedAttendance.checkOut !== '—' ? `${selectedAttendance.date} ${selectedAttendance.checkOut}` : '—'}
+                readOnly
+              />
             </div>
 
             <div className="field-group">
@@ -198,24 +179,146 @@ export default function AttendancePage() {
 
             <div className="field-group">
               <label className="field-label">Worked Hours</label>
-              <input className="field-input" value={selectedAttendance.workedHours} readOnly style={{ fontWeight: 700, color: '#059669' }} />
+              <input
+                className="field-input"
+                value={selectedAttendance.workedHours}
+                readOnly
+                style={{ fontWeight: 700, color: '#059669' }}
+              />
             </div>
 
             <div className="field-group">
               <label className="field-label">Overtime</label>
-              <input className="field-input" value={selectedAttendance.overtime} readOnly />
+              <input className="field-input" value={selectedAttendance.overtime || '0.00 hrs'} readOnly />
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-green-soft)', border: '1px solid var(--border-green)', borderRadius: 'var(--radius-lg)', padding: '16px', marginTop: '12px' }}>
-            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#064E3B', marginBottom: '6px' }}>Notes</h4>
-            <p style={{ fontSize: '0.8rem', color: '#047857' }}>{selectedAttendance.notes}</p>
+          {/* Notes Section with System Generated disclaimer (Exactly as shown in user image) */}
+          <div style={{ backgroundColor: '#F8FAFC', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', padding: '16px', marginTop: '16px' }}>
+            <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '6px' }}>
+              Notes
+            </h4>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+              {selectedAttendance.notes || 'System-generated from check in/out or manually corrected by an authorized user.'}
+            </p>
+          </div>
+
+          {/* Useful Note annotation (from user image) */}
+          <div style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+            Useful note: worked hours and overtime should be easy to read because they may later influence payroll or reporting.
           </div>
         </div>
+
+        {/* HR Manager / Admin Edit Modal */}
+        {isEditModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-dialog" style={{ maxWidth: '520px' }}>
+              <div className="modal-header">
+                <h3 className="modal-title">Edit Attendance Record</h3>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#94A3B8' }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <form onSubmit={handleSaveAttendance}>
+                <div className="modal-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                  <div className="field-group" style={{ gridColumn: '1 / -1' }}>
+                    <label className="field-label">Employee Name *</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.employeeName}
+                      onChange={(e) => setEditFormData({ ...editFormData, employeeName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Date *</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.date}
+                      onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Status *</label>
+                    <select
+                      className="field-input"
+                      value={editFormData.status}
+                      onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                    >
+                      <option value="Present">Present</option>
+                      <option value="Late">Late</option>
+                      <option value="Absent">Absent</option>
+                    </select>
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Check In</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.checkIn}
+                      onChange={(e) => setEditFormData({ ...editFormData, checkIn: e.target.value })}
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Check Out</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.checkOut}
+                      onChange={(e) => setEditFormData({ ...editFormData, checkOut: e.target.value })}
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Worked Hours</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.workedHours}
+                      onChange={(e) => setEditFormData({ ...editFormData, workedHours: e.target.value })}
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label className="field-label">Overtime</label>
+                    <input
+                      className="field-input"
+                      value={editFormData.overtime}
+                      onChange={(e) => setEditFormData({ ...editFormData, overtime: e.target.value })}
+                    />
+                  </div>
+                  <div className="field-group" style={{ gridColumn: '1 / -1' }}>
+                    <label className="field-label">Notes</label>
+                    <textarea
+                      className="field-input"
+                      rows={2}
+                      value={editFormData.notes}
+                      onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn-status-action"
+                    onClick={() => setIsEditModalOpen(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-action-primary">
+                    <Save size={15} />
+                    <span>Save Changes</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
+  // Attendance List View
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div>
@@ -232,8 +335,9 @@ export default function AttendancePage() {
 
       <div className="odoo-control-bar">
         <div className="control-bar-left">
-          {canManageHR && (
-            <button type="button" className="btn-action-primary">
+          {/* Only HR Manager & Admin can manually create attendance */}
+          {canManageAttendance && (
+            <button type="button" className="btn-action-primary" onClick={handleOpenCreate}>
               <Plus size={16} />
               <span>NEW</span>
             </button>
@@ -243,7 +347,7 @@ export default function AttendancePage() {
             <Search size={16} />
             <input
               type="text"
-              placeholder="Search by date or note..."
+              placeholder="Search by employee, date or note..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -259,7 +363,7 @@ export default function AttendancePage() {
             }}
             onClick={() => setActiveFilter('all')}
           >
-            All Logs
+            All Logs ({baseList.length})
           </button>
 
           <button
@@ -326,6 +430,112 @@ export default function AttendancePage() {
           </tbody>
         </table>
       </div>
+
+      {/* HR Manager / Admin Edit Modal for List View */}
+      {isEditModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-dialog" style={{ maxWidth: '520px' }}>
+            <div className="modal-header">
+              <h3 className="modal-title">{editFormData.id ? 'Edit Attendance' : 'Create Attendance Record'}</h3>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#94A3B8' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveAttendance}>
+              <div className="modal-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div className="field-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="field-label">Employee Name *</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.employeeName}
+                    onChange={(e) => setEditFormData({ ...editFormData, employeeName: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Date *</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.date}
+                    onChange={(e) => setEditFormData({ ...editFormData, date: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Status *</label>
+                  <select
+                    className="field-input"
+                    value={editFormData.status}
+                    onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                  >
+                    <option value="Present">Present</option>
+                    <option value="Late">Late</option>
+                    <option value="Absent">Absent</option>
+                  </select>
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Check In</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.checkIn}
+                    onChange={(e) => setEditFormData({ ...editFormData, checkIn: e.target.value })}
+                  />
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Check Out</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.checkOut}
+                    onChange={(e) => setEditFormData({ ...editFormData, checkOut: e.target.value })}
+                  />
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Worked Hours</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.workedHours}
+                    onChange={(e) => setEditFormData({ ...editFormData, workedHours: e.target.value })}
+                  />
+                </div>
+                <div className="field-group">
+                  <label className="field-label">Overtime</label>
+                  <input
+                    className="field-input"
+                    value={editFormData.overtime}
+                    onChange={(e) => setEditFormData({ ...editFormData, overtime: e.target.value })}
+                  />
+                </div>
+                <div className="field-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="field-label">Notes</label>
+                  <textarea
+                    className="field-input"
+                    rows={2}
+                    value={editFormData.notes}
+                    onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-status-action"
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-action-primary">
+                  <Save size={15} />
+                  <span>Save</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

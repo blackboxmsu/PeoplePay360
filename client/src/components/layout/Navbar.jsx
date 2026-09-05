@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, Shield, LogOut } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
 import QuickAttendanceWidget from '../common/QuickAttendanceWidget';
 
 export default function Navbar() {
@@ -11,7 +12,18 @@ export default function Navbar() {
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isAttendanceOpen, setIsAttendanceOpen] = useState(false);
-  const [isCheckedIn, setIsCheckedIn] = useState(true);
+  const userKey = user?.email || 'default_user';
+
+  const [isCheckedIn, setIsCheckedIn] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`peoplepay360_att_session_${user?.email || 'default'}`);
+      if (saved) return JSON.parse(saved).isCheckedIn;
+    } catch (e) {}
+    return true; // Default checked-in for demo
+  });
+
+  const [checkInTime, setCheckInTime] = useState('09:05 AM');
+  const [elapsedTime, setElapsedTime] = useState('6h56');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   const displayName = user?.name || 'Aarav Mehta';
@@ -49,6 +61,42 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleToggleCheckIn = () => {
+    if (isCheckedIn) {
+      // User is checking out: complete session and record in store
+      const checkOutTimeStr = '18:10';
+      const newRec = {
+        id: `att-${Date.now()}`,
+        employeeId: user?.employeeId || 'emp-self',
+        employeeName: displayName,
+        date: '02-Sep-2026',
+        checkIn: '09:05',
+        checkOut: checkOutTimeStr,
+        workedHours: '9.08',
+        status: 'Present',
+        department: role === 'hr_manager' ? 'HR' : role === 'employee' ? 'Engineering' : 'Finance',
+        manager: 'Sara Khan',
+        overtime: '0.50 hrs',
+        notes: 'System-generated from check in/out or manually corrected by an authorized user.'
+      };
+
+      store.saveAttendance(newRec);
+      setIsCheckedIn(false);
+      try {
+        localStorage.setItem(`peoplepay360_att_session_${userKey}`, JSON.stringify({ isCheckedIn: false }));
+      } catch (e) {}
+    } else {
+      // User is checking in
+      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setCheckInTime(nowStr);
+      setElapsedTime('0h01');
+      setIsCheckedIn(true);
+      try {
+        localStorage.setItem(`peoplepay360_att_session_${userKey}`, JSON.stringify({ isCheckedIn: true, checkInTime: nowStr }));
+      } catch (e) {}
+    }
   };
 
   return (
@@ -342,7 +390,9 @@ export default function Navbar() {
         onClose={() => setIsAttendanceOpen(false)}
         userName={displayName}
         isCheckedIn={isCheckedIn}
-        onToggleCheckIn={() => setIsCheckedIn(!isCheckedIn)}
+        onToggleCheckIn={handleToggleCheckIn}
+        checkInTime={checkInTime}
+        elapsedTime={elapsedTime}
       />
     </header>
   );

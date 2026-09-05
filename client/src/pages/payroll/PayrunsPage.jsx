@@ -144,6 +144,7 @@ export default function PayrunsPage() {
 
   const handlePayrunStatusUpdate = (newStatus) => {
     if (!selectedPayrun) return;
+    debugger;
     const updated = {
       ...selectedPayrun,
       status: newStatus,

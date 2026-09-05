@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X } from 'lucide-react';
+import { useAuth, DEMO_CREDENTIALS } from '../context/AuthContext';
+import { Shield, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, authError, isAuthenticated } = useAuth();
+  const { login, quickDemoLogin, authError, isAuthenticated } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('payrollmanager@peoplepay360.com');
+  const [password, setPassword] = useState('Demo@123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -39,6 +39,22 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } else {
       setError(result.message || 'Invalid email or password');
+    }
+  };
+
+  const handleSelectDemo = async (demoEmail) => {
+    setEmail(demoEmail);
+    setPassword('Demo@123');
+    setError(null);
+    setLoading(true);
+
+    const result = await quickDemoLogin(demoEmail);
+    setLoading(false);
+
+    if (result.success) {
+      navigate(from, { replace: true });
+    } else {
+      setError(result.message || 'Quick login failed');
     }
   };
 
@@ -90,9 +106,9 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Main Login Card (Matching Screenshot 1) */}
-      <div className="odoo-form-card" style={{ width: '100%', maxWidth: '440px', padding: '36px' }}>
-        <div style={{ marginBottom: '24px' }}>
+      {/* Main Login Card */}
+      <div className="odoo-form-card" style={{ width: '100%', maxWidth: '480px', padding: '36px' }}>
+        <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             HR Portal
           </div>
@@ -192,39 +208,71 @@ export default function LoginPage() {
           </button>
         </form>
 
-<<<<<<< HEAD
-        <div style={{
-          marginTop: '16px',
-          padding: '10px 12px',
-          backgroundColor: 'var(--bg-green-soft)',
-          border: '1px solid var(--border-green)',
-          borderRadius: 'var(--radius-md)',
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: '8px'
-        }}>
-          <Shield size={16} style={{ color: '#059669', flexShrink: 0, marginTop: '2px' }} />
-          <p style={{ fontSize: '0.74rem', color: '#065F46', margin: 0, lineHeight: 1.45 }}>
-            <strong>Strict RBAC Enforcement:</strong> Self-registration is disabled. Accounts and roles are provisioned exclusively by authorized <strong>HR Managers</strong> and <strong>Administrators</strong>. Credentials are automatically delivered to work inboxes via <strong>Nodemailer</strong>.
-          </p>
-        </div>
-
-        {/* 1-Click Demo Accounts Quick-Switcher for Judges */}
-=======
->>>>>>> 7308a1a19ac45766a4e802277d1e9927d0c4b81d
+        {/* 5 Demo Accounts / Seed Users Section (Restored) */}
         <div style={{
           marginTop: '24px',
           paddingTop: '18px',
+          borderTop: '1px dashed var(--border-subtle)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Sparkles size={13} style={{ color: '#059669' }} />
+              <span>Demo Seed Accounts (5 Roles)</span>
+            </span>
+            <span style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 600 }}>
+              Password: Demo@123
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {DEMO_CREDENTIALS.map((demo) => (
+              <button
+                key={demo.role}
+                type="button"
+                onClick={() => handleSelectDemo(demo.email)}
+                disabled={loading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '8px 12px',
+                  backgroundColor: email === demo.email ? 'var(--bg-green-soft)' : '#FFFFFF',
+                  border: `1px solid ${email === demo.email ? 'var(--border-green)' : 'var(--border-subtle)'}`,
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.12s ease'
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '0.825rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {demo.roleLabel} <span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>({demo.name})</span>
+                  </div>
+                  <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+                    {demo.email} • {demo.desc}
+                  </div>
+                </div>
+                <span className="status-pill active" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>
+                  Select
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{
+          marginTop: '20px',
+          paddingTop: '14px',
           borderTop: '1px solid var(--border-subtle)',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
-          gap: '6px'
+          gap: '4px'
         }}>
-          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-            Accounts are created by an administrator.
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Accounts are managed by the administrator. Access is role-protected.
           </p>
-          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+          <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
             After sign-in, show only the modules and actions allowed by the user's assigned role.
           </p>
         </div>

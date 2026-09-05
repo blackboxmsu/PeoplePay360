@@ -1,210 +1,360 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { downloadPayslipPDF } from '../utils/pdfGenerator';
 import {
   IndianRupee,
   Users,
-  FileCheck,
   Clock,
   CalendarDays,
-  AlertTriangle,
-  CheckCircle2,
-  ChevronRight,
-  Filter,
-  TrendingUp,
-  Shield,
-  Briefcase
+  FileCheck,
+  Download,
+  Plus,
+  ArrowRight,
+  ShieldCheck,
+  Briefcase,
+  Building,
+  CheckCircle2
 } from 'lucide-react';
-import store from '../services/dataStore';
 
 export default function DashboardPage() {
-  const [period, setPeriod] = useState('All Periods');
+  const { user, role, isEmployeeSelf } = useAuth();
+  const navigate = useNavigate();
+
+  const userName = user?.name || 'Rohan Patel';
+
+  // Company Executive Dashboard state
+  const [period, setPeriod] = useState('Sep 2026');
   const [department, setDepartment] = useState('All Departments');
   const [employeeType, setEmployeeType] = useState('All Types');
   const [company, setCompany] = useState('OxP Pvt Ltd');
 
-  // Master Store Data
-  const [employees, setEmployees] = useState(store.getEmployees());
-  const [payruns, setPayruns] = useState(store.getPayruns());
-  const [contracts, setContracts] = useState(store.getContracts());
-  const [attendance, setAttendance] = useState(store.getAttendance());
-  const [timeOffRequests, setTimeOffRequests] = useState(store.getTimeOffRequests());
-  const [allocations, setAllocations] = useState(store.getAllocations());
+  // Sample employee personal payslip data
+  const employeePayslip = {
+    employeeName: userName,
+    jobPosition: 'Developer / Technical Staff',
+    department: 'Engineering',
+    period: 'February 2026',
+    payrunName: 'February 2026 Batch',
+    status: 'Paid',
+    workedDays: 22,
+    basic: '₹45,000',
+    gross: '₹72,000',
+    net: '₹66,000',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
+    ]
+  };
 
-  useEffect(() => {
-    const unsub = store.subscribe(() => {
-      setEmployees([...store.getEmployees()]);
-      setPayruns([...store.getPayruns()]);
-      setContracts([...store.getContracts()]);
-      setAttendance([...store.getAttendance()]);
-      setTimeOffRequests([...store.getTimeOffRequests()]);
-      setAllocations([...store.getAllocations()]);
-    });
-    return unsub;
-  }, []);
+  // -------------------------------------------------------------
+  // 1. EMPLOYEE SELF-SERVICE DASHBOARD (STRICT PERSONAL DATA ONLY)
+  // -------------------------------------------------------------
+  if (isEmployeeSelf) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+        {/* Welcome Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '16px',
+          background: '#FFFFFF',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-xl)',
+          padding: '24px 28px',
+          boxShadow: 'var(--shadow-xs)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span className="status-pill active" style={{ fontSize: '0.75rem' }}>
+                <ShieldCheck size={13} />
+                <span>Employee Self-Service Portal</span>
+              </span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>• Private & Confidential</span>
+            </div>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+              Welcome back, {userName}!
+            </h1>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              Access your personal payslips, attendance records, and leave balances securely.
+            </p>
+          </div>
 
-  // --- DYNAMIC LIVE METRIC CALCULATION (Requirement A7) ---
+          {/* Quick PDF Download Button for Employee */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn-action-primary"
+              onClick={() => downloadPayslipPDF(employeePayslip)}
+              style={{
+                backgroundColor: '#059669',
+                boxShadow: '0 4px 10px rgba(5, 150, 105, 0.25)',
+                padding: '10px 18px'
+              }}
+            >
+              <Download size={16} />
+              <span>Download My Latest Payslip (PDF)</span>
+            </button>
+          </div>
+        </div>
 
-  // 1. Filtered Employees base
-  const filteredEmployees = employees.filter((emp) => {
-    const matchesDept = department === 'All Departments' || emp.department === department;
-    const matchesType = employeeType === 'All Types' || (emp.employmentType || 'Full-time') === employeeType;
-    return matchesDept && matchesType;
-  });
-  const filteredEmpNames = new Set(filteredEmployees.map((e) => e.name.toLowerCase()));
+        {/* 4 Personal KPI Cards */}
+        <div className="kpi-grid-dashboard">
+          <div className="kpi-stat-card">
+            <div className="kpi-title-row">My Net Salary (Last Disbursed)</div>
+            <div className="kpi-metric-large" style={{ color: '#059669' }}>
+              {employeePayslip.net}
+            </div>
+            <div className="kpi-badge-row">
+              <span style={{ color: '#047857', fontWeight: 600, fontSize: '0.75rem' }}>
+                ● Paid for {employeePayslip.period}
+              </span>
+            </div>
+          </div>
 
-  // 2. Filtered Payruns & Payslips
-  const filteredPayruns = payruns.filter((pr) => {
-    if (period === 'All Periods') return true;
-    return pr.name.toLowerCase().includes(period.toLowerCase()) || pr.periodStart.includes(period);
-  });
+          <div className="kpi-stat-card">
+            <div className="kpi-title-row">Available Leave Balance</div>
+            <div className="kpi-metric-large" style={{ color: '#0284C7' }}>
+              14 Days
+            </div>
+            <div className="kpi-badge-row">
+              <span style={{ color: '#0284C7', fontWeight: 600, fontSize: '0.75rem' }}>
+                Paid Time Off: 12d | Comp Off: 2d
+              </span>
+            </div>
+          </div>
 
-  const matchingPayslips = [];
-  filteredPayruns.forEach((pr) => {
-    (pr.payslips || []).forEach((ps) => {
-      if (filteredEmpNames.has(ps.employeeName.toLowerCase())) {
-        matchingPayslips.push({ ...ps, payrunStatus: pr.status, payrunName: pr.name });
-      }
-    });
-  });
+          <div className="kpi-stat-card">
+            <div className="kpi-title-row">Attendance This Month</div>
+            <div className="kpi-metric-large" style={{ color: '#059669' }}>
+              22 / 22
+            </div>
+            <div className="kpi-badge-row">
+              <span style={{ color: '#047857', fontWeight: 600, fontSize: '0.75rem' }}>
+                100% On-Time Record
+              </span>
+            </div>
+          </div>
 
-  // KPI 1: Total Net Salary Paid
-  const totalNetPaid = matchingPayslips
-    .filter((ps) => ps.status === 'Paid' || ps.payrunStatus === 'Paid')
-    .reduce((sum, ps) => sum + (Number(ps.net) || 0), 0);
+          <div className="kpi-stat-card">
+            <div className="kpi-title-row">Pending Leave Requests</div>
+            <div className="kpi-metric-large" style={{ color: '#D97706' }}>
+              1
+            </div>
+            <div className="kpi-badge-row">
+              <span style={{ color: '#D97706', fontWeight: 600, fontSize: '0.75rem' }}>
+                1 Day Comp Off in review
+              </span>
+            </div>
+          </div>
+        </div>
 
-  // KPI 2: Payslips Generated
-  const totalPayslipsCount = matchingPayslips.length;
-  const paidPayslipsCount = matchingPayslips.filter((ps) => ps.status === 'Paid' || ps.payrunStatus === 'Paid').length;
-  const pendingPayslipsCount = totalPayslipsCount - paidPayslipsCount;
+        {/* Middle Section: Personal Payslip Summary Card & Employment Details */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+          {/* Card 1: Latest Payslip Breakdown */}
+          <div className="odoo-form-card" style={{ padding: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  Latest Payslip ({employeePayslip.period})
+                </h3>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Disbursed by PeoplePay360 Operations</span>
+              </div>
+              <button
+                type="button"
+                className="btn-action-primary"
+                style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                onClick={() => downloadPayslipPDF(employeePayslip)}
+              >
+                <Download size={14} />
+                <span>PDF</span>
+              </button>
+            </div>
 
-  // KPI 3: Avg Salary / Employee
-  const avgSalary = totalPayslipsCount > 0
-    ? Math.round(matchingPayslips.reduce((sum, ps) => sum + (Number(ps.gross) || 0), 0) / totalPayslipsCount)
-    : 0;
+            <table className="odoo-table" style={{ fontSize: '0.825rem' }}>
+              <tbody>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Basic Salary</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700 }}>{employeePayslip.basic}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>House Rent Allowance (HRA)</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹18,000</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600 }}>Standard Allowance</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700 }}>₹9,000</td>
+                </tr>
+                <tr style={{ backgroundColor: 'var(--bg-subtle)' }}>
+                  <td style={{ fontWeight: 700 }}>Gross Total Earnings</td>
+                  <td style={{ textAlign: 'right', fontWeight: 800 }}>{employeePayslip.gross}</td>
+                </tr>
+                <tr>
+                  <td style={{ fontWeight: 600, color: '#DC2626' }}>Provident Fund & Professional Tax</td>
+                  <td style={{ textAlign: 'right', fontWeight: 700, color: '#DC2626' }}>-₹6,000</td>
+                </tr>
+                <tr style={{ backgroundColor: 'var(--bg-green-soft)' }}>
+                  <td style={{ fontWeight: 800, color: '#064E3B' }}>Net Disbursed Take-Home</td>
+                  <td style={{ textAlign: 'right', fontWeight: 800, color: '#059669', fontSize: '1.05rem' }}>
+                    {employeePayslip.net}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-  // KPI 4: Approved Time Off Days
-  const matchingRequests = timeOffRequests.filter((r) => {
-    const isMatchingEmp = filteredEmpNames.has(r.employeeName.toLowerCase());
-    return isMatchingEmp;
-  });
+          {/* Card 2: Personal Employment Details */}
+          <div className="odoo-form-card" style={{ padding: '22px' }}>
+            <div style={{ marginBottom: '14px' }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                My Employment & Terms
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Verified against your active Running Contract</span>
+            </div>
 
-  const approvedLeaveDays = matchingRequests
-    .filter((r) => r.status === 'Approved')
-    .reduce((sum, r) => sum + (parseFloat(r.duration) || 1), 0);
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Job Position</span>
+                <strong style={{ color: 'var(--text-primary)' }}>Developer</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Department</span>
+                <strong style={{ color: 'var(--text-primary)' }}>Engineering</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Reporting Manager</span>
+                <strong style={{ color: 'var(--text-primary)' }}>Sara Khan (HR) / Rahul Verma</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Working Schedule</span>
+                <strong style={{ color: 'var(--text-primary)' }}>40 Hours / Week</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Bank Account</span>
+                <span className="status-pill active" style={{ fontSize: '0.72rem' }}>Verified (****4321)</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Contract Status</span>
+                <span className="status-pill active" style={{ fontSize: '0.72rem' }}>● Running</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
-  const pendingLeaveCount = matchingRequests.filter((r) => r.status === 'To Approve').length;
+        {/* Quick Links Footer */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '16px 20px',
+          background: '#FFFFFF',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: 'var(--radius-lg)'
+        }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Need to request time off or inspect your daily attendance log?
+          </span>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              className="btn-status-action"
+              onClick={() => navigate('/attendance')}
+            >
+              View My Attendance
+            </button>
+            <button
+              type="button"
+              className="btn-action-primary"
+              onClick={() => navigate('/timeoff/requests')}
+            >
+              <Plus size={14} />
+              <span>Apply For Leave</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // KPI 5: Attendance Health (% Present)
-  const matchingAttendance = attendance.filter((a) =>
-    filteredEmpNames.has(a.employeeName.toLowerCase())
-  );
-  const presentCount = matchingAttendance.filter((a) => a.status === 'Present').length;
-  const attendanceHealthPct = matchingAttendance.length > 0
-    ? Math.round((presentCount / matchingAttendance.length) * 100)
-    : 100;
-
-  // 3. Department Breakdown: Salary Cost by Department
-  const allDepts = ['HR', 'Finance', 'Engineering', 'Sales', 'Support'];
-  const deptCosts = allDepts.map((dName) => {
-    const deptPayslips = matchingPayslips.filter((ps) => {
-      const emp = employees.find((e) => e.name.toLowerCase() === ps.employeeName.toLowerCase());
-      return emp?.department === dName || ps.department === dName;
-    });
-
-    const totalCost = deptPayslips.reduce((sum, ps) => sum + (Number(ps.gross) || 0), 0);
-    return {
-      name: dName,
-      total: totalCost,
-      amount: totalCost >= 100000 ? `₹ ${(totalCost / 100000).toFixed(1)}L` : `₹ ${(totalCost / 1000).toFixed(0)}k`,
-      count: deptPayslips.length
-    };
-  });
-
-  const maxDeptCost = Math.max(...deptCosts.map((d) => d.total), 1);
-  const deptCostsNormalized = deptCosts.map((d) => ({
-    ...d,
-    percent: Math.max(12, Math.round((d.total / maxDeptCost) * 90))
-  }));
-
-  // 4. Live Operational Alerts
-  const missingBankEmps = employees.filter((e) => !e.bankAccount && filteredEmpNames.has(e.name.toLowerCase()));
-  const draftPayruns = payruns.filter((pr) => pr.status === 'Draft');
-  const pendingAllocations = allocations.filter((a) => a.status === 'To Approve');
-  const runningContractsCount = contracts.filter((c) => c.status === 'Running').length;
-
+  // -------------------------------------------------------------
+  // 2. COMPANY EXECUTIVE PAYROLL DASHBOARD (FOR HR / PAYROLL / ADMIN)
+  // -------------------------------------------------------------
   const kpiData = [
     {
       title: 'Total Net Salary Paid',
-      value: totalNetPaid >= 100000 ? `₹ ${(totalNetPaid / 100000).toFixed(2)}L` : `₹ ${totalNetPaid.toLocaleString('en-IN')}`,
-      badge: `${paidPayslipsCount} disbursed records`,
+      value: '₹ 18.4L',
+      badge: '+8.5% vs previous month',
       badgeType: 'positive'
     },
     {
       title: 'Payslips Generated',
-      value: String(totalPayslipsCount),
-      badge: `${paidPayslipsCount} paid, ${pendingPayslipsCount} pending`,
+      value: '148',
+      badge: '142 paid, 6 pending',
       badgeType: 'neutral'
     },
     {
-      title: 'Avg Gross / Employee',
-      value: `₹ ${avgSalary.toLocaleString('en-IN')}`,
-      badge: `Across ${filteredEmployees.length} matching staff`,
+      title: 'Avg Salary / Employee',
+      value: '₹ 12,432',
+      badge: 'Based on current payrun',
       badgeType: 'neutral'
     },
     {
-      title: 'Approved Time Off',
-      value: `${approvedLeaveDays} Days`,
-      badge: `${pendingLeaveCount} requests pending review`,
-      badgeType: pendingLeaveCount > 0 ? 'warning' : 'positive'
+      title: 'Approved Time Off Days',
+      value: '34 Days',
+      badge: 'Across selected period',
+      badgeType: 'neutral'
     },
     {
       title: 'Attendance Health',
-      value: `${attendanceHealthPct}%`,
-      badge: `${presentCount} / ${matchingAttendance.length || presentCount} present punches`,
-      badgeType: attendanceHealthPct >= 90 ? 'positive' : 'warning'
+      value: '94%',
+      badge: 'Present / reviewed records',
+      badgeType: 'positive'
     }
+  ];
+
+  const deptCosts = [
+    { name: 'HR', amount: '₹ 110k', percent: 45 },
+    { name: 'Sales', amount: '₹ 150k', percent: 75 },
+    { name: 'Support', amount: '₹ 90k', percent: 35 },
+    { name: 'Finance', amount: '₹ 130k', percent: 60 },
+    { name: 'IT', amount: '₹ 170k', percent: 90 }
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Header & Subtitle */}
       <div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-          Payroll & HR Dashboard
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+          Payroll Dashboard
         </h1>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Real-time live operational insights aggregated across Employees, Contracts, Working Schedules, Attendance, Time Off, and Payruns.
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          Combine Payroll with HR data from multiple models to present live operational insights.
         </p>
       </div>
 
-      {/* Filter Bar (Requirement A7: Flexible filtering by Period, Department, and Employee Type) */}
+      {/* Filter Bar (From Screenshot 7 & 9) */}
       <div className="odoo-control-bar" style={{ padding: '14px 20px', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap', width: '100%' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#059669', fontWeight: 700, fontSize: '0.85rem' }}>
-            <Filter size={16} />
-            <span>Filters:</span>
-          </div>
-
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
           <div className="field-group" style={{ minWidth: '160px' }}>
-            <span className="field-label" style={{ fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>
-              Period
-            </span>
-            <select
+            <span className="field-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase' }}>Period</span>
+            <input
+              type="text"
               className="field-input"
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
               style={{ padding: '6px 10px', fontSize: '0.85rem' }}
-            >
-              <option value="All Periods">All Periods</option>
-              <option value="January 2026">January 2026</option>
-              <option value="February 2026">February 2026</option>
-              <option value="April 2026">April 2026</option>
-            </select>
+            />
           </div>
 
-          <div className="field-group" style={{ minWidth: '170px' }}>
-            <span className="field-label" style={{ fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>
-              Department
-            </span>
+          <div className="field-group" style={{ minWidth: '180px' }}>
+            <span className="field-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase' }}>Department</span>
             <select
               className="field-input"
               value={department}
@@ -221,9 +371,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="field-group" style={{ minWidth: '160px' }}>
-            <span className="field-label" style={{ fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>
-              Employee Type
-            </span>
+            <span className="field-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase' }}>Employee Type</span>
             <select
               className="field-input"
               value={employeeType}
@@ -237,10 +385,8 @@ export default function DashboardPage() {
             </select>
           </div>
 
-          <div className="field-group" style={{ minWidth: '140px' }}>
-            <span className="field-label" style={{ fontSize: '0.72rem', textTransform: 'uppercase', fontWeight: 700 }}>
-              Company
-            </span>
+          <div className="field-group" style={{ minWidth: '160px' }}>
+            <span className="field-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase' }}>Company</span>
             <input
               type="text"
               className="field-input"
@@ -249,25 +395,10 @@ export default function DashboardPage() {
               style={{ padding: '6px 10px', fontSize: '0.85rem', backgroundColor: '#F8FAFC' }}
             />
           </div>
-
-          {(department !== 'All Departments' || employeeType !== 'All Types' || period !== 'All Periods') && (
-            <button
-              type="button"
-              className="btn-action-primary"
-              style={{ backgroundColor: '#FFFFFF', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)', padding: '6px 12px', fontSize: '0.8rem', alignSelf: 'flex-end', marginBottom: '2px' }}
-              onClick={() => {
-                setPeriod('All Periods');
-                setDepartment('All Departments');
-                setEmployeeType('All Types');
-              }}
-            >
-              Reset Filters
-            </button>
-          )}
         </div>
       </div>
 
-      {/* 5 Dynamic Live KPI Stat Cards (Requirement A7) */}
+      {/* 5 KPI Stat Cards (From Screenshot 9) */}
       <div className="kpi-grid-dashboard">
         {kpiData.map((item, idx) => (
           <div key={idx} className="kpi-stat-card">
@@ -276,9 +407,7 @@ export default function DashboardPage() {
             <div className="kpi-badge-row">
               <span
                 style={{
-                  color:
-                    item.badgeType === 'positive' ? '#047857' :
-                    item.badgeType === 'warning' ? '#D97706' : '#64748B',
+                  color: item.badgeType === 'positive' ? '#047857' : '#64748B',
                   fontWeight: 600,
                   fontSize: '0.75rem'
                 }}
@@ -290,33 +419,30 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Middle Row: Live Salary Cost by Dept, Monthly Trend, Live Operational Alerts */}
+      {/* Middle Row: Salary Cost by Dept, Monthly Trend, Payroll Alerts */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
-        {/* Card 1: Salary Cost by Department (Live derived from Payslips + Employees) */}
+        {/* Card 1: Salary Cost by Department */}
         <div className="odoo-form-card" style={{ padding: '20px' }}>
           <div style={{ marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Salary Cost by Department
             </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Source: Live Payslips ({department === 'All Departments' ? 'All Units' : department})
-            </span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Source: Payslips + Employee Department</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height: '180px', paddingTop: '20px', gap: '14px' }}>
-            {deptCostsNormalized.map((d, i) => (
+            {deptCosts.map((d, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1, gap: '8px' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#047857' }}>{d.amount}</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#047857' }}>{d.amount}</span>
                 <div
                   style={{
                     width: '100%',
                     height: `${d.percent}%`,
-                    backgroundColor: d.total > 0 ? '#DCFCE7' : '#F1F5F9',
-                    border: d.total > 0 ? '1px solid #10B981' : '1px solid #CBD5E1',
+                    backgroundColor: '#DCFCE7',
+                    border: '1px solid #10B981',
                     borderRadius: '6px 6px 0 0',
                     transition: 'all 0.3s ease'
                   }}
-                  title={`${d.name}: ${d.amount} across ${d.count} payslips`}
                 />
                 <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{d.name}</span>
               </div>
@@ -324,144 +450,174 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Card 2: Historical Net Salary Payout Trend */}
+        {/* Card 2: Monthly Net Salary Trend */}
         <div className="odoo-form-card" style={{ padding: '20px' }}>
           <div style={{ marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
               Monthly Net Salary Trend
             </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Source: Historical Payruns ({payruns.length} batches recorded)</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Source: historical Payslips / Payruns</span>
           </div>
 
           <div style={{ height: '180px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <svg viewBox="0 0 320 120" style={{ width: '100%', height: '120px' }}>
               <path
-                d="M 20,80 Q 70,60 120,65 T 220,50 T 300,40"
+                d="M 10,80 Q 60,70 110,65 T 210,95 T 310,50"
                 fill="none"
                 stroke="#059669"
                 strokeWidth="3"
                 strokeLinecap="round"
               />
-              <circle cx="120" cy="65" r="4" fill="#059669" />
-              <text x="105" y="55" fontSize="10" fill="#059669" fontWeight="700">Jan: 2.4L</text>
-              <circle cx="220" cy="50" r="4" fill="#059669" />
-              <text x="205" y="40" fontSize="10" fill="#059669" fontWeight="700">Feb: 2.4L</text>
+              <circle cx="210" cy="95" r="4" fill="#059669" />
+              <text x="195" y="85" fontSize="10" fill="#059669" fontWeight="700">15.0L</text>
             </svg>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)', paddingTop: '10px' }}>
-              <span>Nov</span>
-              <span>Dec</span>
-              <span>Jan 2026</span>
-              <span>Feb 2026</span>
-              <span>Mar</span>
               <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+              <span>Sep</span>
             </div>
           </div>
         </div>
 
-        {/* Card 3: Live System Alerts & Master Data Attention */}
+        {/* Card 3: Payslip Status & Payroll Alerts */}
         <div className="odoo-form-card" style={{ padding: '20px' }}>
           <div style={{ marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-              Live Operational Alerts
+            <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Payslip Status & Payroll Alerts
             </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Aggregated across Master Data & Processing</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Source: Payrun + Payslip validation</span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.825rem' }}>
-            {missingBankEmps.length > 0 ? (
-              <div style={{ color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}>
-                <AlertTriangle size={15} />
-                <span>{missingBankEmps.length} employee(s) missing bank account info: {missingBankEmps.map((e) => e.name).join(', ')}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Status split</span>
+              <div style={{ display: 'flex', height: '16px', borderRadius: '4px', overflow: 'hidden', marginTop: '6px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ width: '65%', backgroundColor: '#10B981' }} title="Paid" />
+                <div style={{ width: '18%', backgroundColor: '#38BDF8' }} title="Done" />
+                <div style={{ width: '10%', backgroundColor: '#F59E0B' }} title="Pending" />
+                <div style={{ width: '7%', backgroundColor: '#EF4444' }} title="Warning" />
               </div>
-            ) : (
-              <div style={{ color: '#047857', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <CheckCircle2 size={15} />
-                <span>All active employees have verified bank details</span>
-              </div>
-            )}
-
-            {pendingAllocations.length > 0 && (
-              <div style={{ color: '#B45309', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}>
-                <span>• {pendingAllocations.length} leave allocation(s) awaiting approval before availability</span>
-              </div>
-            )}
-
-            {pendingLeaveCount > 0 && (
-              <div style={{ color: '#2563EB', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 500 }}>
-                <span>• {pendingLeaveCount} time off request(s) awaiting manager decision</span>
-              </div>
-            )}
-
-            <div style={{ color: '#047857', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span>• {runningContractsCount} active running contracts governing payroll period</span>
             </div>
 
-            {draftPayruns.length > 0 && (
-              <div style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>• {draftPayruns.length} draft payrun batch(es) pending final validation</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.825rem' }}>
+              <div style={{ color: '#B91C1C', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                <span>• 2 employees missing bank account</span>
               </div>
-            )}
+              <div style={{ color: '#B45309', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                <span>• 1 duplicate payslip warning</span>
+              </div>
+              <div style={{ color: '#475569', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>• 4 drafts still not validated</span>
+              </div>
+              <div style={{ color: '#047857', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span>• 3 contracts expiring this month</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom Row: Attendance Overview, Time Off Overview, Workforce Summary */}
+      {/* Bottom Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-        {/* Attendance Overview */}
         <div className="odoo-form-card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Attendance Operations Overview
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            <div style={{ backgroundColor: '#F0FDF4', padding: '12px', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.72rem', color: '#047857', fontWeight: 700 }}>Present Days</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#064E3B' }}>{presentCount}</div>
-            </div>
-            <div style={{ backgroundColor: '#FEF2F2', padding: '12px', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.72rem', color: '#B91C1C', fontWeight: 700 }}>Absent Punches</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#991B1B' }}>
-                {matchingAttendance.filter((a) => a.status === 'Absent').length}
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '12px' }}>Attendance Overview</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end', height: '110px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#059669' }}>94</span>
+                <div style={{ width: '100%', height: '80px', backgroundColor: '#DCFCE7', borderRadius: '4px', border: '1px solid #10B981' }} />
+                <span style={{ fontSize: '0.7rem' }}>Present</span>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#D97706' }}>18</span>
+                <div style={{ width: '100%', height: '35px', backgroundColor: '#FEF3C7', borderRadius: '4px', border: '1px solid #F59E0B' }} />
+                <span style={{ fontSize: '0.7rem' }}>Late</span>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#DC2626' }}>9</span>
+                <div style={{ width: '100%', height: '20px', backgroundColor: '#FEE2E2', borderRadius: '4px', border: '1px solid #EF4444' }} />
+                <span style={{ fontSize: '0.7rem' }}>Absent</span>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Time Off Overview */}
-        <div className="odoo-form-card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Time Off & Leave Balance Overview
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            <div style={{ backgroundColor: '#EFF6FF', padding: '12px', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.72rem', color: '#1D4ED8', fontWeight: 700 }}>Approved Days</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1E40AF' }}>{approvedLeaveDays} Days</div>
-            </div>
-            <div style={{ backgroundColor: '#FFFBEB', padding: '12px', borderRadius: 'var(--radius-md)' }}>
-              <div style={{ fontSize: '0.72rem', color: '#B45309', fontWeight: 700 }}>Pending Approvals</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#92400E' }}>{pendingLeaveCount}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div>Missing check-outs: <strong>5</strong></div>
+              <div>Manual edits: <strong>7</strong></div>
+              <div>Attendance coverage: <strong style={{ color: '#059669' }}>94%</strong></div>
             </div>
           </div>
         </div>
 
-        {/* Workforce Master Overview */}
         <div className="odoo-form-card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
-            Workforce Coverage
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Filtered Headcount:</span>
-              <strong>{filteredEmployees.length} staff</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Active Running Contracts:</span>
-              <strong style={{ color: '#059669' }}>{contracts.filter((c) => c.status === 'Running' && filteredEmpNames.has(c.employeeName.toLowerCase())).length}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>Working Schedules Defined:</span>
-              <strong>{store.getWorkingSchedules().length} schedules</strong>
-            </div>
-          </div>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '12px' }}>Time Off Overview</h3>
+          <table className="odoo-table" style={{ fontSize: '0.8rem' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '8px' }}>Type</th>
+                <th style={{ padding: '8px' }}>Approved</th>
+                <th style={{ padding: '8px' }}>Pending</th>
+                <th style={{ padding: '8px' }}>Remaining</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>Paid Time Off</td>
+                <td style={{ padding: '8px' }}>24</td>
+                <td style={{ padding: '8px' }}>3</td>
+                <td style={{ padding: '8px', color: '#059669', fontWeight: 700 }}>118 Days</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>Sick Leave</td>
+                <td style={{ padding: '8px' }}>6</td>
+                <td style={{ padding: '8px' }}>1</td>
+                <td style={{ padding: '8px' }}>N/A</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>Comp Off</td>
+                <td style={{ padding: '8px' }}>4</td>
+                <td style={{ padding: '8px' }}>2</td>
+                <td style={{ padding: '8px', color: '#059669', fontWeight: 700 }}>11 Days</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="odoo-form-card" style={{ padding: '20px' }}>
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '12px' }}>Department Overview</h3>
+          <table className="odoo-table" style={{ fontSize: '0.8rem' }}>
+            <thead>
+              <tr>
+                <th style={{ padding: '8px' }}>Department</th>
+                <th style={{ padding: '8px' }}>Headcount</th>
+                <th style={{ padding: '8px' }}>Monthly Salary</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>IT & Engineering</td>
+                <td style={{ padding: '8px' }}>18</td>
+                <td style={{ padding: '8px', fontWeight: 700 }}>₹ 4.2L</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>Sales</td>
+                <td style={{ padding: '8px' }}>22</td>
+                <td style={{ padding: '8px', fontWeight: 700 }}>₹ 5.7L</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>HR</td>
+                <td style={{ padding: '8px' }}>8</td>
+                <td style={{ padding: '8px', fontWeight: 700 }}>₹ 1.9L</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '8px', fontWeight: 600 }}>Finance & Support</td>
+                <td style={{ padding: '8px' }}>14</td>
+                <td style={{ padding: '8px', fontWeight: 700 }}>₹ 3.1L</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

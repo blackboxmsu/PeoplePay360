@@ -1,57 +1,156 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, ArrowLeft, Printer, CheckCircle, AlertTriangle, Download, X, Calendar } from 'lucide-react';
-import store from '../../services/dataStore';
+import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { downloadPayslipPDF } from '../../utils/pdfGenerator';
+import {
+  Search,
+  ArrowLeft,
+  Printer,
+  Download,
+  CheckCircle,
+  AlertTriangle,
+  Shield,
+  FileText
+} from 'lucide-react';
+
+const ALL_PAYSLIPS = [
+  {
+    id: 'ps-rohan-1',
+    employeeName: 'Rohan Patel',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 22,
+    basic: '₹45,000',
+    gross: '₹72,000',
+    net: '₹66,000',
+    jobPosition: 'Developer',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-rohan-2',
+    employeeName: 'Rohan Patel',
+    warning: '—',
+    payrunName: 'January 2026',
+    period: '01-Jan — 31-Jan 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 22,
+    basic: '₹45,000',
+    gross: '₹72,000',
+    net: '₹66,000',
+    jobPosition: 'Developer',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-1',
+    employeeName: 'Aarav Mehta',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 22,
+    basic: '₹50,000',
+    gross: '₹80,000',
+    net: '₹75,000',
+    jobPosition: 'Payroll Specialist',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹50,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹20,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹80,000', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹2,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹75,000', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-2',
+    employeeName: 'Sara Khan',
+    warning: 'A/C missing',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 22,
+    basic: '₹60,000',
+    gross: '₹95,000',
+    net: '₹88,000',
+    jobPosition: 'HR Officer',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹60,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹24,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹11,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹95,000', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,500', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,500', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹88,000', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-3',
+    employeeName: 'John Dsouza',
+    warning: 'Duplicate',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Draft',
+    workedDays: 21,
+    basic: '₹45,000',
+    gross: '₹72,000',
+    net: '₹66,000',
+    jobPosition: 'Developer',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
+    ]
+  }
+];
 
 export default function PayslipsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const employeeFilter = searchParams.get('employee') || '';
+  const { user, isEmployeeSelf, canAccessPayroll } = useAuth();
+  const userName = user?.name || 'Rohan Patel';
 
-  const [payruns, setPayruns] = useState(store.getPayruns());
+  const [payslips, setPayslips] = useState(ALL_PAYSLIPS);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPayslip, setSelectedPayslip] = useState(null);
 
-  useEffect(() => {
-    const unsub = store.subscribe(() => {
-      setPayruns([...store.getPayruns()]);
-    });
-    return unsub;
-  }, []);
+  // Strictly filter list:
+  // If role is employee, ONLY show current user's payslips!
+  const baseList = isEmployeeSelf
+    ? payslips.filter(p => p.employeeName.toLowerCase() === userName.toLowerCase())
+    : payslips;
 
-  // Collect all payslips across payruns
-  const allPayslips = [];
-  payruns.forEach((pr) => {
-    (pr.payslips || []).forEach((ps) => {
-      allPayslips.push({
-        ...ps,
-        payrunName: pr.name,
-        structure: ps.structure || pr.structure,
-        period: ps.period || `${pr.periodStart} — ${pr.periodEnd}`
-      });
-    });
-  });
+  const filtered = baseList.filter(p =>
+    p.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.payrunName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const filtered = allPayslips.filter((p) => {
-    const matchesSearch =
-      p.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.payrunName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.structure.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesEmployee = employeeFilter
-      ? p.employeeName.toLowerCase() === employeeFilter.toLowerCase()
-      : true;
-
-    return matchesSearch && matchesEmployee;
-  });
-
-  // FORM VIEW
+  // Form View (Screenshot 6)
   if (selectedPayslip) {
-    const lines = selectedPayslip.lines || [
-      { ruleName: 'Basic Salary', category: 'Basic', code: 'BASIC', formattedAmount: `₹${Number(selectedPayslip.basic).toLocaleString('en-IN')}` },
-      { ruleName: 'Gross Salary', category: 'Gross', code: 'GROSS', formattedAmount: `₹${Number(selectedPayslip.gross).toLocaleString('en-IN')}` },
-      { ruleName: 'Net Salary', category: 'Net', code: 'NET', formattedAmount: `₹${Number(selectedPayslip.net).toLocaleString('en-IN')}` }
-    ];
-
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
@@ -63,56 +162,64 @@ export default function PayslipsPage() {
               onClick={() => setSelectedPayslip(null)}
             >
               <ArrowLeft size={16} />
-              <span>Payslips</span>
+              <span>Back to Payslips</span>
             </button>
             <span style={{ color: 'var(--text-muted)' }}>/</span>
             <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
-              {selectedPayslip.employeeName} — {selectedPayslip.payrunName}
+              {selectedPayslip.employeeName} ({selectedPayslip.period})
             </span>
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
+            {/* Real PDF Download Action */}
             <button
               type="button"
               className="btn-action-primary"
+              style={{ backgroundColor: '#059669', boxShadow: '0 4px 10px rgba(5, 150, 105, 0.25)' }}
+              onClick={() => downloadPayslipPDF(selectedPayslip)}
+            >
+              <Download size={15} />
+              <span>Download Payslip (PDF)</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-status-action"
               onClick={() => window.print()}
             >
               <Printer size={15} />
-              <span>PRINT PAYSLIP</span>
+              <span>Print</span>
             </button>
           </div>
         </div>
 
-        <div className="odoo-form-card">
-          <div className="odoo-form-header">
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                  Payslip / {selectedPayslip.employeeName}
-                </h2>
-                <span className={`status-pill ${selectedPayslip.status === 'Paid' ? 'running' : 'active'}`}>
-                  ● {selectedPayslip.status}
-                </span>
-              </div>
-              <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                Payrun: <strong>{selectedPayslip.payrunName}</strong> &nbsp;|&nbsp; Period: {selectedPayslip.period} &nbsp;|&nbsp; Structure: {selectedPayslip.structure}
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>
-                Net Payout
-              </div>
-              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#059669' }}>
-                ₹{Number(selectedPayslip.net).toLocaleString('en-IN')}
-              </div>
+        {/* Action Bar (Only for Payroll managers) */}
+        {canAccessPayroll && (
+          <div className="action-buttons-bar">
+            <button type="button" className="btn-status-action primary-flow">
+              COMPUTE
+            </button>
+            <button type="button" className="btn-status-action">
+              MARK PAID
+            </button>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Status:</span>
+              <span className="status-pill active">● {selectedPayslip.status}</span>
             </div>
           </div>
+        )}
 
+        {/* Info Card */}
+        <div className="odoo-form-card" style={{ padding: '24px' }}>
           <div className="form-grid-2col">
             <div className="field-group">
               <label className="field-label">Employee</label>
               <input className="field-input" value={selectedPayslip.employeeName} readOnly />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label">Period</label>
+              <input className="field-input" value={selectedPayslip.period} readOnly />
             </div>
 
             <div className="field-group">
@@ -121,93 +228,134 @@ export default function PayslipsPage() {
             </div>
 
             <div className="field-group">
-              <label className="field-label">Worked Days</label>
-              <input className="field-input" value={`${selectedPayslip.workedDays || 22} Days`} readOnly />
+              <label className="field-label">Status</label>
+              <div>
+                <span className="status-pill active">● {selectedPayslip.status}</span>
+              </div>
             </div>
 
             <div className="field-group">
-              <label className="field-label">Payrun Batch</label>
+              <label className="field-label">Pay Run Batch</label>
               <input className="field-input" value={selectedPayslip.payrunName} readOnly />
             </div>
 
             <div className="field-group">
-              <label className="field-label">Contract Base Wage</label>
-              <input className="field-input" value={`₹${Number(selectedPayslip.contractWage || selectedPayslip.basic * 2).toLocaleString('en-IN')}`} readOnly />
-            </div>
-
-            <div className="field-group">
-              <label className="field-label">Gross Salary</label>
-              <input className="field-input" value={`₹${Number(selectedPayslip.gross).toLocaleString('en-IN')}`} readOnly style={{ fontWeight: 700, color: '#2563EB' }} />
+              <label className="field-label">Worked Days</label>
+              <input className="field-input" value={`${selectedPayslip.workedDays} Days`} readOnly />
             </div>
           </div>
+        </div>
 
-          {/* Detailed Salary Rule Breakdown Lines */}
-          <div style={{ marginTop: '24px' }}>
-            <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '10px', color: 'var(--text-primary)' }}>
-              Salary Computation Lines
-            </h3>
-            <div className="table-panel">
-              <table className="odoo-table" style={{ fontSize: '0.85rem' }}>
-                <thead>
-                  <tr>
-                    <th style={{ width: '80px' }}>Seq</th>
-                    <th>Salary Rule</th>
-                    <th>Code</th>
-                    <th>Category</th>
-                    <th style={{ textAlign: 'right' }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lines.map((line, idx) => (
-                    <tr key={idx}>
-                      <td style={{ color: '#059669', fontWeight: 700 }}>{line.sequence || (idx + 1) * 10}</td>
-                      <td style={{ fontWeight: 600 }}>{line.ruleName || line.rule}</td>
-                      <td style={{ fontFamily: 'JetBrains Mono, monospace' }}>{line.code}</td>
-                      <td>
-                        <span className="status-pill" style={{ fontSize: '0.72rem' }}>
-                          {line.category}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'right', fontWeight: 800, color: line.category === 'Deduction' ? '#DC2626' : '#059669' }}>
-                        {line.formattedAmount || `₹${Number(line.amount).toLocaleString('en-IN')}`}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Salary Computation Breakdown Table (Screenshot 6) */}
+        <div style={{ marginTop: '8px' }}>
+          <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                Salary Computation Breakdown
+              </h3>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Rule-by-rule evaluation executed by the sequenced payroll engine
+              </span>
             </div>
+
+            <button
+              type="button"
+              className="btn-action-primary"
+              style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+              onClick={() => downloadPayslipPDF(selectedPayslip)}
+            >
+              <Download size={14} />
+              <span>Export PDF</span>
+            </button>
+          </div>
+
+          <div className="table-panel">
+            <table className="odoo-table">
+              <thead>
+                <tr>
+                  <th>Rule</th>
+                  <th>Category</th>
+                  <th>Amount</th>
+                  <th>Code</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedPayslip.lines.map((line, idx) => (
+                  <tr
+                    key={idx}
+                    style={{
+                      backgroundColor: line.category === 'Net' ? 'var(--bg-green-soft)' : 'transparent',
+                      fontWeight: line.category === 'Net' || line.category === 'Gross' ? 700 : 500
+                    }}
+                  >
+                    <td style={{ color: line.category === 'Net' ? '#064E3B' : 'var(--text-primary)' }}>
+                      {line.rule}
+                    </td>
+                    <td>
+                      <span
+                        className="status-pill"
+                        style={{
+                          backgroundColor:
+                            line.category === 'Basic' ? '#EFF6FF' :
+                            line.category === 'Allowance' ? '#ECFDF5' :
+                            line.category === 'Deduction' ? '#FEF2F2' : '#F1F5F9',
+                          color:
+                            line.category === 'Basic' ? '#1D4ED8' :
+                            line.category === 'Allowance' ? '#047857' :
+                            line.category === 'Deduction' ? '#B91C1C' : '#0F172A'
+                        }}
+                      >
+                        {line.category}
+                      </span>
+                    </td>
+                    <td
+                      style={{
+                        color: line.category === 'Net' ? '#059669' : line.category === 'Deduction' ? '#DC2626' : 'var(--text-primary)',
+                        fontWeight: 700
+                      }}
+                    >
+                      {line.amount}
+                    </td>
+                    <td style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      {line.code}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
     );
   }
 
-  // LIST VIEW
+  // Payslips List View
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-          Payslips
-        </h1>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-          Individual employee payslips calculated by applicable period contracts and assigned salary structure rules
-        </p>
-      </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            {isEmployeeSelf ? 'My Payslips' : 'Payslips'}
+          </h1>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            {isEmployeeSelf
+              ? `Personal salary disbursal records for ${userName}. Click Download PDF on any payslip.`
+              : 'List view of employee payslips with rule breakdowns and PDF printing'
+            }
+          </p>
+        </div>
 
-      {employeeFilter && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE', padding: '8px 14px', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: '#1E40AF' }}>
-          <span>Filtered by Employee: <strong>{employeeFilter}</strong></span>
+        {filtered.length > 0 && (
           <button
             type="button"
-            className="btn-icon"
-            style={{ width: '20px', height: '20px', padding: 0 }}
-            onClick={() => setSearchParams({})}
-            title="Clear filter"
+            className="btn-action-primary"
+            onClick={() => downloadPayslipPDF(filtered[0])}
           >
-            <X size={14} />
+            <Download size={15} />
+            <span>Download Latest PDF</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="odoo-control-bar">
         <div className="control-bar-left">
@@ -215,12 +363,19 @@ export default function PayslipsPage() {
             <Search size={16} />
             <input
               type="text"
-              placeholder="Search payslips..."
+              placeholder="Search by period or batch..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
+
+        {isEmployeeSelf && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
+            <Shield size={14} />
+            <span>Your Personal Salary Ledger</span>
+          </div>
+        )}
       </div>
 
       <div className="table-panel">
@@ -228,37 +383,75 @@ export default function PayslipsPage() {
           <thead>
             <tr>
               <th>Employee</th>
-              <th>Payrun</th>
+              <th>Warning</th>
               <th>Period</th>
-              <th>Structure</th>
               <th>Basic</th>
               <th>Gross</th>
-              <th>Net Payout</th>
+              <th>Net</th>
+              <th>Structure</th>
               <th>Status</th>
+              <th style={{ textAlign: 'center' }}>PDF Download</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((p, idx) => (
-              <tr
-                key={p.id || idx}
-                style={{ cursor: 'pointer' }}
-                onClick={() => setSelectedPayslip(p)}
-                title="Click to view full computation breakdown"
-              >
-                <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.employeeName}</td>
-                <td>{p.payrunName}</td>
-                <td>{p.period}</td>
-                <td>{p.structure}</td>
-                <td>₹{Number(p.basic).toLocaleString('en-IN')}</td>
-                <td style={{ fontWeight: 600 }}>₹{Number(p.gross).toLocaleString('en-IN')}</td>
-                <td style={{ fontWeight: 800, color: '#059669' }}>₹{Number(p.net).toLocaleString('en-IN')}</td>
-                <td>
-                  <span className={`status-pill ${p.status === 'Paid' ? 'running' : 'active'}`}>
-                    ● {p.status}
-                  </span>
+            {filtered.length > 0 ? (
+              filtered.map((p) => (
+                <tr
+                  key={p.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => setSelectedPayslip(p)}
+                >
+                  <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.employeeName}</td>
+                  <td>
+                    {p.warning !== '—' ? (
+                      <span className="status-pill draft" style={{ fontSize: '0.72rem' }}>
+                        <AlertTriangle size={12} />
+                        {p.warning}
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--text-muted)' }}>—</span>
+                    )}
+                  </td>
+                  <td>{p.period}</td>
+                  <td>{p.basic}</td>
+                  <td>{p.gross}</td>
+                  <td style={{ fontWeight: 800, color: '#059669' }}>{p.net}</td>
+                  <td>{p.structure}</td>
+                  <td>
+                    <span className={`status-pill ${p.status === 'Paid' ? 'active' : 'draft'}`}>
+                      ● {p.status}
+                    </span>
+                  </td>
+                  <td
+                    style={{ textAlign: 'center' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      downloadPayslipPDF(p);
+                    }}
+                  >
+                    <button
+                      type="button"
+                      className="btn-action-primary"
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '0.75rem',
+                        backgroundColor: '#059669'
+                      }}
+                      title="Download PDF"
+                    >
+                      <Download size={13} />
+                      <span>PDF</span>
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={9} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
+                  No payslips found for your account.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

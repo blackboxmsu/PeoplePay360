@@ -55,11 +55,11 @@ export default function App() {
               }
             />
 
-            {/* Contracts (HR & Payroll & Admin) */}
+            {/* Contracts (HR & Payroll & Admin + Employee self-service) */}
             <Route
               path="/contracts"
               element={
-                <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                <ProtectedRoute allowedRoles={['employee', 'hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                   <ContractsPage />
                 </ProtectedRoute>
               }
@@ -85,7 +85,7 @@ export default function App() {
               <Route
                 path="allocations"
                 element={
-                  <ProtectedRoute allowedRoles={['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                  <ProtectedRoute allowedRoles={['employee', 'hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                     <TimeOffAllocationsPage />
                   </ProtectedRoute>
                 }
@@ -100,7 +100,7 @@ export default function App() {
               />
             </Route>
 
-            {/* Payroll Sub-routes (Payroll roles & Admin only) */}
+            {/* Payroll Sub-routes */}
             <Route
               path="/payroll"
               element={
@@ -120,7 +120,7 @@ export default function App() {
             <Route
               path="/payroll/payslips"
               element={
-                <ProtectedRoute allowedRoles={['hr_payroll_user', 'hr_payroll_manager', 'admin']}>
+                <ProtectedRoute allowedRoles={['employee', 'hr_payroll_user', 'hr_payroll_manager', 'admin']}>
                   <PayslipsPage />
                 </ProtectedRoute>
               }

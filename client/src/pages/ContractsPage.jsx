@@ -5,7 +5,8 @@ import store from '../services/dataStore';
 import { useAuth } from '../context/AuthContext';
 
 export default function ContractsPage() {
-  const { canManageHR } = useAuth();
+  const { canManageHR, isEmployeeSelf, user } = useAuth();
+  const userName = user?.name || 'Rohan Patel';
   const [searchParams, setSearchParams] = useSearchParams();
   const employeeFilter = searchParams.get('employee') || '';
 
@@ -108,6 +109,10 @@ export default function ContractsPage() {
       c.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (c.department && c.department.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    if (isEmployeeSelf) {
+      return matchesSearch && (c.employeeName.toLowerCase() === userName.toLowerCase() || c.employeeId === user?.employeeId);
+    }
 
     const matchesEmployee = employeeFilter
       ? c.employeeName.toLowerCase() === employeeFilter.toLowerCase() ||

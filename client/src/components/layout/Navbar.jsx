@@ -112,16 +112,26 @@ export default function Navbar() {
             </div>
           )}
 
-          {/* Employee Self-Service: My Details (Visible to employee only) */}
+          {/* Employee Self-Service Menus (Visible to employee only) */}
           {isEmployeeSelf && (
-            <div className="nav-menu-item">
-              <NavLink
-                to="/employees"
-                className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
-              >
-                <span>My Details</span>
-              </NavLink>
-            </div>
+            <>
+              <div className="nav-menu-item">
+                <NavLink
+                  to="/employees"
+                  className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+                >
+                  <span>My Profile</span>
+                </NavLink>
+              </div>
+              <div className="nav-menu-item">
+                <NavLink
+                  to="/payroll/payslips"
+                  className={({ isActive }) => `nav-link-btn ${isActive ? 'active' : ''}`}
+                >
+                  <span>My Payslips</span>
+                </NavLink>
+              </div>
+            </>
           )}
 
           {/* Contracts ▼ (Hidden for Employee role) */}
@@ -178,23 +188,22 @@ export default function Navbar() {
                   {isEmployeeSelf ? 'My Leave Requests' : 'Time Off Requests'}
                 </NavLink>
 
+                <NavLink
+                  to="/timeoff/allocations"
+                  className="dropdown-item"
+                  onClick={() => setActiveDropdown(null)}
+                >
+                  {isEmployeeSelf ? 'My Leave Balances' : 'Allocations'}
+                </NavLink>
+
                 {!isEmployeeSelf && (
-                  <>
-                    <NavLink
-                      to="/timeoff/allocations"
-                      className="dropdown-item"
-                      onClick={() => setActiveDropdown(null)}
-                    >
-                      Allocations
-                    </NavLink>
-                    <NavLink
-                      to="/timeoff/types"
-                      className="dropdown-item"
-                      onClick={() => setActiveDropdown(null)}
-                    >
-                      Time Off Types
-                    </NavLink>
-                  </>
+                  <NavLink
+                    to="/timeoff/types"
+                    className="dropdown-item"
+                    onClick={() => setActiveDropdown(null)}
+                  >
+                    Time Off Types
+                  </NavLink>
                 )}
               </div>
             )}

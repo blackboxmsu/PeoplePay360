@@ -16,33 +16,33 @@ router.use(requireAuth);
 /**
  * @route   POST /api/users/register
  * @desc    Register a new user and assign a role (Nodemailer credential delivery)
- * @access  HR Manager & Admin only (Ordinary users cannot register)
+ * @access  Admin only (Ordinary users cannot register)
  */
 router.post(
   '/register',
-  authorizeRoles('hr_manager', 'admin'),
+  authorizeRoles('admin'),
   registerUser
 );
 
 /**
  * @route   GET /api/users
  * @desc    Get all users list
- * @access  HR Manager & Admin only
+ * @access  Admin only
  */
 router.get(
   '/',
-  authorizeRoles('hr_manager', 'admin'),
+  authorizeRoles('admin'),
   getAllUsers
 );
 
 /**
  * @route   PATCH /api/users/:id/role
  * @desc    Update a user's role assignment
- * @access  HR Manager & Admin only
+ * @access  Admin only
  */
 router.patch(
   '/:id/role',
-  authorizeRoles('hr_manager', 'admin'),
+  authorizeRoles('admin'),
   updateUserRole
 );
 

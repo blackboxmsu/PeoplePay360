@@ -4,27 +4,27 @@ import { Search, Plus, ArrowLeft, Check, X, Shield } from 'lucide-react';
 
 const INITIAL_ALLOCATIONS = [
   {
-    id: 'alc-rohan-1',
-    employeeName: 'Rohan Patel',
+    id: 'alc-parth-1',
+    employeeName: 'Parth Solanki',
     type: 'Paid Time Off',
-    allocated: '18 Days',
+    allocated: '20 Days',
     taken: '4 Days',
-    remaining: '14 Days',
+    remaining: '16 Days',
     status: 'Approved',
     validity: '2026 Annual Balance',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     description: 'Engineering department annual leave grant.'
   },
   {
-    id: 'alc-rohan-2',
-    employeeName: 'Rohan Patel',
+    id: 'alc-parth-2',
+    employeeName: 'Parth Solanki',
     type: 'Comp Off',
     allocated: '2 Days',
     taken: '0 Days',
     remaining: '2 Days',
     status: 'Approved',
     validity: 'Q3 Balance',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     description: 'Weekend emergency support comp-off credit.'
   },
   {
@@ -36,19 +36,19 @@ const INITIAL_ALLOCATIONS = [
     remaining: '12 Days',
     status: 'Approved',
     validity: '2026 Annual Balance',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     description: 'Annual leave balance granted at start of policy year.'
   },
   {
     id: 'alc-2',
-    employeeName: 'Sara Khan',
+    employeeName: 'Meet Rathod',
     type: 'Paid Time Off',
     allocated: '18 Days',
     taken: '4 Days',
     remaining: '14 Days',
     status: 'Approved',
     validity: '2026 Annual Balance',
-    approver: 'Aditi Roy',
+    approver: 'Raviraj Dhokiya',
     description: 'Executive leave allocation.'
   },
   {
@@ -60,14 +60,14 @@ const INITIAL_ALLOCATIONS = [
     remaining: '1 Day',
     status: 'To Approve',
     validity: 'Q3 Balance',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     description: 'Compensation off for weekend hiring drive.'
   }
 ];
 
 export default function TimeOffAllocationsPage() {
   const { user, isEmployeeSelf, canManageHR } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
 
   const [allocations, setAllocations] = useState(INITIAL_ALLOCATIONS);
   const [searchTerm, setSearchTerm] = useState('');

@@ -60,37 +60,58 @@ const ROLE_DESCRIPTIONS = {
 const DEFAULT_USERS = [
   {
     id: 'u-1',
-    name: 'Rohan Patel',
-    email: 'employee@peoplepay360.com',
-    role: 'employee',
+    name: 'Raviraj Dhokiya',
+    email: 'admin@peoplepay360.com',
+    role: 'admin',
     createdAt: new Date().toISOString()
   },
   {
     id: 'u-2',
-    name: 'Sara Khan',
+    name: 'Meet Rathod',
     email: 'hrmanager@peoplepay360.com',
     role: 'hr_manager',
     createdAt: new Date().toISOString()
   },
   {
     id: 'u-3',
-    name: 'Aditi Roy',
+    name: 'Neev Chovatiya',
     email: 'payrolluser@peoplepay360.com',
     role: 'hr_payroll_user',
     createdAt: new Date().toISOString()
   },
   {
     id: 'u-4',
-    name: 'Aarav Mehta',
+    name: 'Ujjwal Rathod',
     email: 'payrollmanager@peoplepay360.com',
     role: 'hr_payroll_manager',
     createdAt: new Date().toISOString()
   },
   {
     id: 'u-5',
-    name: 'System Admin',
-    email: 'admin@peoplepay360.com',
-    role: 'admin',
+    name: 'Parth Solanki',
+    email: 'employee@peoplepay360.com',
+    role: 'employee',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'u-6',
+    name: 'Ayush Moradiya',
+    email: 'ayush@peoplepay360.com',
+    role: 'employee',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'u-7',
+    name: 'Krish Palat',
+    email: 'krish@peoplepay360.com',
+    role: 'employee',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'u-8',
+    name: 'Rooney',
+    email: 'rooney@peoplepay360.com',
+    role: 'employee',
     createdAt: new Date().toISOString()
   }
 ];

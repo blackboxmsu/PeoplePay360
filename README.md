@@ -91,17 +91,20 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## 👥 Demo Accounts & Role-Based Access Control
+## 👥 Configured Users & Role-Based Access Control (RBAC)
 
-The platform includes 5 pre-configured demo profiles for testing role-specific features:
+The platform implements 5 distinct roles matching the enterprise specification:
 
-| Role | Email | Password | Access Scope |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@peoplepay360.com` | `admin123` | Full system access & User management |
-| **HR Manager** | `hrmanager@peoplepay360.com` | `admin123` | Employees, Contracts, Schedules, Time Off approvals |
-| **HR Payroll Manager** | `payrollmgr@peoplepay360.com` | `admin123` | Full Payroll, Payruns, Salary Structures & Rules |
-| **HR Payroll User** | `payrollusr@peoplepay360.com` | `admin123` | Payrun computation, Payslips |
-| **Employee** | `employee@peoplepay360.com` | `admin123` | Self-Service profile, Attendance, Time Off, Payslips |
+| Role | User Name | Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin** | **Raviraj Dhokiya** | `admin@peoplepay360.com` *(or `raviraj@peoplepay360.com`)* | `Demo@123` | Full access across all modules, User management, role assignment & system administration |
+| **HR Manager** | **Meet Rathod** | `hrmanager@peoplepay360.com` *(or `meet@peoplepay360.com`)* | `Demo@123` | Full CRUD to Employees, Attendance, Contracts, Schedules & Time Off (No payroll access) |
+| **HR Payroll User** | **Neev Chovatiya** | `payrolluser@peoplepay360.com` *(or `neev@peoplepay360.com`)* | `Demo@123` | All HR Manager permissions + Create, Read, Update Payruns & Payslips (Read-only structures & rules) |
+| **HR Payroll Manager** | **Ujjwal Rathod** | `payrollmanager@peoplepay360.com` *(or `ujjwal@peoplepay360.com`)* | `Demo@123` | All HR Payroll User permissions with full CRUD to Payruns, Payslips, Salary Structures & Rules |
+| **Employee** | **Parth Solanki** | `employee@peoplepay360.com` *(or `parth@peoplepay360.com`)* | `Demo@123` | Self-Service: View personal profile, attendance, leave balance & submit leave requests |
+| **Employee** | **Ayush Moradiya** | `ayush@peoplepay360.com` | `Demo@123` | Self-Service: View personal profile, attendance, leave balance & submit leave requests |
+| **Employee** | **Krish Palat** | `krish@peoplepay360.com` | `Demo@123` | Self-Service: View personal profile, attendance, leave balance & submit leave requests |
+| **Employee** | **Rooney** | `rooney@peoplepay360.com` | `Demo@123` | Self-Service: View personal profile, attendance, leave balance & submit leave requests |
 
 ---
 

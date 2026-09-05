@@ -4,26 +4,26 @@ import { Search, Plus, ArrowLeft, Check, X, Shield, CalendarPlus } from 'lucide-
 
 const INITIAL_REQUESTS = [
   {
-    id: 'req-rohan-1',
-    employeeName: 'Rohan Patel',
+    id: 'req-parth-1',
+    employeeName: 'Parth Solanki',
     type: 'Comp Off',
     startDate: '10-Sep-2026',
     endDate: '10-Sep-2026',
     duration: '1 Day',
     status: 'To Approve',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     allocationUsed: 'Comp Off Balance (2d remaining)',
     reason: 'Weekend release deployment support'
   },
   {
-    id: 'req-rohan-2',
-    employeeName: 'Rohan Patel',
+    id: 'req-parth-2',
+    employeeName: 'Parth Solanki',
     type: 'Paid Time Off',
     startDate: '15-Aug-2026',
     endDate: '18-Aug-2026',
     duration: '4 Days',
     status: 'Approved',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     allocationUsed: 'Paid Time Off 2026',
     reason: 'Annual family festival leave'
   },
@@ -35,19 +35,19 @@ const INITIAL_REQUESTS = [
     endDate: '14-Sep-2026',
     duration: '3 Days',
     status: 'Approved',
-    approver: 'Sara Khan',
+    approver: 'Meet Rathod',
     allocationUsed: 'Paid Time Off 2026',
     reason: 'Family vacation'
   },
   {
     id: 'req-2',
-    employeeName: 'Sara Khan',
+    employeeName: 'Parth Solanki',
     type: 'Sick Leave',
     startDate: '18-Sep-2026',
     endDate: '18-Sep-2026',
     duration: '1 Day',
     status: 'Approved',
-    approver: 'Aditi Roy',
+    approver: 'Meet Rathod',
     allocationUsed: 'None (Direct)',
     reason: 'Doctor consultation'
   },
@@ -67,7 +67,7 @@ const INITIAL_REQUESTS = [
 
 export default function TimeOffRequestsPage() {
   const { user, isEmployeeSelf, canManageHR } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
 
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [searchTerm, setSearchTerm] = useState('');
@@ -101,7 +101,7 @@ export default function TimeOffRequestsPage() {
       endDate: newEndDate,
       duration: '1 Day',
       status: 'To Approve',
-      approver: 'Sara Khan',
+      approver: 'Meet Rathod',
       allocationUsed: `${newType} Balance`,
       reason: newReason || 'Personal leave request'
     };

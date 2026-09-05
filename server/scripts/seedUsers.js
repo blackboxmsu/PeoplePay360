@@ -2,39 +2,98 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import User from '../models/user.model.js';
 
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/peoplepay360';
 
 export const DEMO_USERS = [
   {
-    name: 'Rohan Patel',
-    email: 'employee@peoplepay360.com',
-    role: 'employee',
+    name: 'Raviraj Dhokiya',
+    email: 'admin@peoplepay360.com',
+    role: 'admin',
     password: 'Demo@123'
   },
   {
-    name: 'Sara Khan',
+    name: 'Raviraj Dhokiya',
+    email: 'raviraj@peoplepay360.com',
+    role: 'admin',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Meet Rathod',
     email: 'hrmanager@peoplepay360.com',
     role: 'hr_manager',
     password: 'Demo@123'
   },
   {
-    name: 'Aditi Roy',
+    name: 'Meet Rathod',
+    email: 'meet@peoplepay360.com',
+    role: 'hr_manager',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Meet Rathod',
+    email: 'meetrathod470@gmail.com',
+    role: 'hr_manager',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Neev Chovatiya',
     email: 'payrolluser@peoplepay360.com',
     role: 'hr_payroll_user',
     password: 'Demo@123'
   },
   {
-    name: 'Aarav Mehta',
+    name: 'Neev Chovatiya',
+    email: 'neev@peoplepay360.com',
+    role: 'hr_payroll_user',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Ujjwal Rathod',
     email: 'payrollmanager@peoplepay360.com',
     role: 'hr_payroll_manager',
     password: 'Demo@123'
   },
   {
-    name: 'System Admin',
-    email: 'admin@peoplepay360.com',
-    role: 'admin',
+    name: 'Ujjwal Rathod',
+    email: 'ujjwal@peoplepay360.com',
+    role: 'hr_payroll_manager',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Parth Solanki',
+    email: 'employee@peoplepay360.com',
+    role: 'employee',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Parth Solanki',
+    email: 'parth@peoplepay360.com',
+    role: 'employee',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Ayush Moradiya',
+    email: 'ayush@peoplepay360.com',
+    role: 'employee',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Krish Palat',
+    email: 'krish@peoplepay360.com',
+    role: 'employee',
+    password: 'Demo@123'
+  },
+  {
+    name: 'Rooney',
+    email: 'rooney@peoplepay360.com',
+    role: 'employee',
     password: 'Demo@123'
   }
 ];

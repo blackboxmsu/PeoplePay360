@@ -5,7 +5,7 @@ import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield, Save, X } 
 
 export default function AttendancePage() {
   const { user, role, isEmployeeSelf } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
   const canManageAttendance = ['hr_manager', 'admin'].includes(role);
 
   const [attendanceList, setAttendanceList] = useState(store.getAttendance());
@@ -24,7 +24,7 @@ export default function AttendancePage() {
     workedHours: '9.00',
     status: 'Present',
     department: 'Finance',
-    manager: 'Sara Khan',
+    manager: 'Meet Rathod',
     overtime: '0.00 hrs',
     notes: 'System-generated from check in/out or manually corrected by an authorized user.'
   });
@@ -69,7 +69,7 @@ export default function AttendancePage() {
       workedHours: '9.08',
       status: 'Present',
       department: 'Finance',
-      manager: 'Sara Khan',
+      manager: 'Meet Rathod',
       overtime: '0.50 hrs',
       notes: 'System-generated from check in/out or manually corrected by an authorized user.'
     });
@@ -156,7 +156,7 @@ export default function AttendancePage() {
 
             <div className="field-group">
               <label className="field-label">Manager</label>
-              <input className="field-input" value={selectedAttendance.manager || 'Sara Khan'} readOnly />
+              <input className="field-input" value={selectedAttendance.manager || 'Meet Rathod'} readOnly />
             </div>
 
             <div className="field-group">

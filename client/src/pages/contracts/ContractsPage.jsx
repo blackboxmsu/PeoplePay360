@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function ContractsPage() {
   const { canManageHR, isEmployeeSelf, user } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
   const [searchParams, setSearchParams] = useSearchParams();
   const employeeFilter = searchParams.get('employee') || '';
 

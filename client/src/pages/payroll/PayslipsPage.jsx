@@ -14,125 +14,194 @@ import {
 
 const ALL_PAYSLIPS = [
   {
-    id: 'ps-rohan-1',
-    employeeName: 'Rohan Patel',
+    id: 'ps-parth-1',
+    employeeName: 'Parth Solanki',
     warning: '—',
     payrunName: 'February 2026',
     period: '01-Feb — 28-Feb 2026',
     structure: 'Regular Salary',
     status: 'Paid',
-    workedDays: 22,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
+    workedDays: 20,
+    basic: '₹37,500',
+    gross: '₹62,500',
+    net: '₹55,000',
+    jobPosition: 'Senior Frontend Engineer',
     lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-rohan-2',
-    employeeName: 'Rohan Patel',
-    warning: '—',
-    payrunName: 'January 2026',
-    period: '01-Jan — 31-Jan 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-1',
-    employeeName: 'Aarav Mehta',
-    warning: '—',
-    payrunName: 'February 2026',
-    period: '01-Feb — 28-Feb 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹50,000',
-    gross: '₹80,000',
-    net: '₹75,000',
-    jobPosition: 'Payroll Specialist',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹50,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹20,000', code: 'HRA' },
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹37,500', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹15,000', code: 'HRA' },
       { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹80,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹2,000', code: 'PF' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹62,500', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹4,500', code: 'PF' },
       { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹75,000', code: 'NET' }
+      { rule: 'Net Salary', category: 'Net', amount: '₹55,000', code: 'NET' }
     ]
   },
   {
-    id: 'ps-2',
-    employeeName: 'Sara Khan',
-    warning: 'A/C missing',
+    id: 'ps-ayush-1',
+    employeeName: 'Ayush Moradiya',
+    warning: '—',
     payrunName: 'February 2026',
     period: '01-Feb — 28-Feb 2026',
     structure: 'Regular Salary',
     status: 'Paid',
-    workedDays: 22,
-    basic: '₹60,000',
-    gross: '₹95,000',
-    net: '₹88,000',
-    jobPosition: 'HR Officer',
+    workedDays: 20,
+    basic: '₹36,000',
+    gross: '₹60,400',
+    net: '₹53,080',
+    jobPosition: 'Backend Systems Engineer',
     lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹60,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹24,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹11,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹95,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,500', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,500', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹88,000', code: 'NET' }
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹36,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹14,400', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹60,400', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹4,320', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹53,080', code: 'NET' }
     ]
   },
   {
-    id: 'ps-3',
-    employeeName: 'John Dsouza',
-    warning: 'Duplicate',
+    id: 'ps-krish-1',
+    employeeName: 'Krish Palat',
+    warning: '—',
     payrunName: 'February 2026',
     period: '01-Feb — 28-Feb 2026',
     structure: 'Regular Salary',
-    status: 'Draft',
-    workedDays: 21,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹34,000',
+    gross: '₹57,600',
+    net: '₹50,520',
+    jobPosition: 'Full Stack Developer',
     lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹34,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹13,600', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹57,600', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹4,080', code: 'PF' },
       { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
+      { rule: 'Net Salary', category: 'Net', amount: '₹50,520', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-rooney-1',
+    employeeName: 'Rooney',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹32,500',
+    gross: '₹55,500',
+    net: '₹48,600',
+    jobPosition: 'QA Automation Specialist',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹32,500', code: 'BASIC' },
+      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹13,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹55,500', code: 'GROSS' },
+      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,900', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹48,600', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-neev-1',
+    employeeName: 'Neev Chovatiya',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹37,500',
+    gross: '₹62,500',
+    net: '₹55,000',
+    jobPosition: 'HR Payroll Specialist',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹37,500', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹15,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹62,500', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹4,500', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹55,000', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-ujjwal-1',
+    employeeName: 'Ujjwal Rathod',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹57,500',
+    gross: '₹90,500',
+    net: '₹80,600',
+    jobPosition: 'HR Payroll Manager',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹57,500', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹23,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹90,500', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹6,900', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹80,600', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-meet-1',
+    employeeName: 'Meet Rathod',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹47,500',
+    gross: '₹76,500',
+    net: '₹67,800',
+    jobPosition: 'HR Manager',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹47,500', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹19,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹76,500', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹5,700', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹67,800', code: 'NET' }
+    ]
+  },
+  {
+    id: 'ps-raviraj-1',
+    employeeName: 'Raviraj Dhokiya',
+    warning: '—',
+    payrunName: 'February 2026',
+    period: '01-Feb — 28-Feb 2026',
+    structure: 'Regular Salary',
+    status: 'Paid',
+    workedDays: 20,
+    basic: '₹75,000',
+    gross: '₹115,000',
+    net: '₹103,000',
+    jobPosition: 'System Administrator & Managing Director',
+    lines: [
+      { rule: 'Basic Salary', category: 'Basic', amount: '₹75,000', code: 'BASIC' },
+      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹30,000', code: 'HRA' },
+      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
+      { rule: 'Gross Salary', category: 'Gross', amount: '₹115,000', code: 'GROSS' },
+      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹9,000', code: 'PF' },
+      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
+      { rule: 'Net Salary', category: 'Net', amount: '₹103,000', code: 'NET' }
     ]
   }
 ];
 
 export default function PayslipsPage() {
   const { user, isEmployeeSelf, canAccessPayroll } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
 
   const [payslips, setPayslips] = useState(ALL_PAYSLIPS);
   const [searchTerm, setSearchTerm] = useState('');

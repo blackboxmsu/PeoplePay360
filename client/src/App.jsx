@@ -138,11 +138,11 @@ export default function App() {
               }
             />
 
-            {/* Users & Role Management (HR Manager & Admin only) */}
+            {/* Users & Role Management (Admin only) */}
             <Route
               path="/users"
               element={
-                <ProtectedRoute allowedRoles={['hr_manager', 'admin']}>
+                <ProtectedRoute allowedRoles={['admin']}>
                   <UsersPage />
                 </ProtectedRoute>
               }

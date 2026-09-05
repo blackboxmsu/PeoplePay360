@@ -4,7 +4,7 @@ import { Clock, Play, Square, X } from 'lucide-react';
 export default function QuickAttendanceWidget({
   isOpen,
   onClose,
-  userName = 'Aarav Mehta',
+  userName = 'Meet Rathod',
   isCheckedIn,
   onToggleCheckIn,
   checkInTime = '09:05 AM',

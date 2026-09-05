@@ -21,7 +21,13 @@ export default function DashboardPage() {
   const { user, role, isEmployeeSelf } = useAuth();
   const navigate = useNavigate();
 
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || (
+    role === 'admin' ? 'Raviraj Dhokiya' :
+    role === 'hr_manager' ? 'Meet Rathod' :
+    role === 'hr_payroll_user' ? 'Neev Chovatiya' :
+    role === 'hr_payroll_manager' ? 'Ujjwal Rathod' :
+    'Parth Solanki'
+  );
 
   // Company Executive Dashboard state
   const [period, setPeriod] = useState('Sep 2026');
@@ -230,7 +236,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Reporting Manager</span>
-                <strong style={{ color: 'var(--text-primary)' }}>Sara Khan (HR) / Rahul Verma</strong>
+                <strong style={{ color: 'var(--text-primary)' }}>Meet Rathod (HR Manager)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Working Schedule</span>

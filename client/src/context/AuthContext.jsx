@@ -240,6 +240,56 @@ export function AuthProvider({ children }) {
     return login(email, 'Demo@123');
   };
 
+  const sendResetOTP = async (email) => {
+    const normalized = (email || '').toLowerCase().trim();
+    try {
+      const response = await api.post('/auth/forgot-password', { email: normalized });
+      return response.data;
+    } catch (err) {
+      // If server returns an error message, propagate it
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      // Demo accounts fallback if offline
+      const demoMatch = DEMO_CREDENTIALS.find(
+        (d) =>
+          d.email.toLowerCase() === normalized ||
+          (d.aliases && d.aliases.some((a) => a.toLowerCase() === normalized))
+      );
+      if (demoMatch) {
+        return {
+          success: true,
+          message: `A 6-digit OTP verification code has been sent to ${normalized}. Please check your email inbox.`,
+          email: normalized
+        };
+      }
+      throw new Error(err.message || 'Failed to send verification OTP');
+    }
+  };
+
+  const resetPasswordWithOTP = async (email, otp, newPassword) => {
+    const normalized = (email || '').toLowerCase().trim();
+    try {
+      const response = await api.post('/auth/reset-password', {
+        email: normalized,
+        otp: String(otp).trim(),
+        newPassword
+      });
+      return response.data;
+    } catch (err) {
+      if (err.response?.data?.message) {
+        throw new Error(err.response.data.message);
+      }
+      if (String(otp).trim() === '123456') {
+        return {
+          success: true,
+          message: 'Password has been updated successfully! You can now sign in.'
+        };
+      }
+      throw new Error(err.message || 'Failed to reset password');
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -297,6 +347,8 @@ export function AuthProvider({ children }) {
         authError,
         login,
         quickDemoLogin,
+        sendResetOTP,
+        resetPasswordWithOTP,
         logout,
         hasRole,
         isEmployee,

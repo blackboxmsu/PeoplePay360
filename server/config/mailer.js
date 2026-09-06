@@ -184,3 +184,109 @@ Please sign in and change your password upon your first session.
     };
   }
 };
+
+/**
+ * Send Password Reset OTP verification email
+ */
+export const sendOTPEmail = async ({ to, name, otp }) => {
+  try {
+    const transporter = await getTransporter();
+    const from = process.env.EMAIL_FROM || '"PeoplePay360 Security" <no-reply@peoplepay360.com>';
+
+    console.log(`\n=================== [PASSWORD RESET OTP] ===================`);
+    console.log(`TO:   ${to} (${name})`);
+    console.log(`CODE: ${otp}`);
+    console.log(`EXP:  10 minutes`);
+    console.log(`============================================================\n`);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F8FAFC; margin: 0; padding: 24px; color: #1E293B; }
+          .container { max-width: 520px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+          .header { background: linear-gradient(135deg, #059669 0%, #10B981 100%); padding: 28px 24px; text-align: center; color: #FFFFFF; }
+          .header h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+          .header p { margin: 6px 0 0 0; font-size: 13px; opacity: 0.9; }
+          .content { padding: 32px 28px; }
+          .greeting { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #0F172A; }
+          .info-text { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+          .otp-box { background: #ECFDF5; border: 2px dashed #059669; border-radius: 10px; padding: 20px; text-align: center; margin: 24px 0; }
+          .otp-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; color: #047857; margin-bottom: 8px; }
+          .otp-code { font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #065F46; font-family: 'Courier New', Courier, monospace; }
+          .expiry-note { font-size: 12px; color: #64748B; margin-top: 8px; }
+          .warning-text { font-size: 12px; color: #94A3B8; line-height: 1.5; border-top: 1px solid #E2E8F0; padding-top: 16px; margin-top: 24px; }
+          .footer { background: #F8FAFC; border-top: 1px solid #E2E8F0; padding: 16px 28px; font-size: 12px; color: #94A3B8; text-align: center; line-height: 1.5; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>PeoplePay360</h1>
+            <p>Identity & Security Verification</p>
+          </div>
+          <div class="content">
+            <div class="greeting">Hello ${name || 'User'},</div>
+            <p class="info-text">
+              We received a request to reset the password for your PeoplePay360 account (<strong>${to}</strong>).
+              Please use the verification code below to complete your password change:
+            </p>
+
+            <div class="otp-box">
+              <div class="otp-label">Verification Code (OTP)</div>
+              <div class="otp-code">${otp}</div>
+              <div class="expiry-note">⏱ Valid for 10 minutes</div>
+            </div>
+
+            <p class="warning-text">
+              <strong>Security Warning:</strong> Never share this code with anyone. PeoplePay360 support staff will never ask for your verification code.
+              If you did not initiate this request, you can safely disregard this email.
+            </p>
+          </div>
+          <div class="footer">
+            © ${new Date().getFullYear()} PeoplePay360 Operations • All rights reserved.<br>
+            Secure Multi-Factor Authentication Gateway
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+PeoplePay360 - Password Reset Verification Code
+
+Hello ${name || 'User'},
+
+We received a request to reset your password.
+Your 6-digit verification code is:
+
+${otp}
+
+This code is valid for 10 minutes.
+If you did not request this password reset, please ignore this email.
+    `.trim();
+
+    const info = await transporter.sendMail({
+      from,
+      to,
+      subject: `${otp} is your PeoplePay360 password reset code`,
+      text: textContent,
+      html: htmlContent
+    });
+
+    console.log(`[Mailer] OTP email dispatched to ${to}, Message ID: ${info.messageId}`);
+    return {
+      success: true,
+      messageId: info.messageId
+    };
+  } catch (error) {
+    console.error('[Mailer Error] Failed to send OTP email:', error.message);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+

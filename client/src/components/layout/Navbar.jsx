@@ -64,22 +64,25 @@ export default function Navbar() {
   };
 
   const handleToggleCheckIn = () => {
+    const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '-');
+    const nowTimeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const empRecord = store.getEmployees().find(e => (user?.employeeId && e.id === user.employeeId) || (e.name && e.name.toLowerCase() === displayName.toLowerCase()));
+
     if (isCheckedIn) {
       // User is checking out: complete session and record in store
-      const checkOutTimeStr = '18:10';
       const newRec = {
         id: `att-${Date.now()}`,
-        employeeId: user?.employeeId || 'emp-self',
-        employeeName: displayName,
-        date: '02-Sep-2026',
-        checkIn: '09:05',
-        checkOut: checkOutTimeStr,
-        workedHours: '9.08',
+        employeeId: empRecord?.id || user?.employeeId || 'emp-5',
+        employeeName: empRecord?.name || displayName,
+        date: todayStr,
+        checkIn: checkInTime || '09:00',
+        checkOut: nowTimeStr,
+        workedHours: '8.50',
         status: 'Present',
-        department: role === 'hr_manager' ? 'HR' : role === 'employee' ? 'Engineering' : 'Finance',
-        manager: 'Sara Khan',
+        department: empRecord?.department || (role === 'hr_manager' ? 'HR' : role === 'employee' ? 'Engineering' : 'Finance'),
+        manager: empRecord?.manager || 'Sara Khan',
         overtime: '0.50 hrs',
-        notes: 'System-generated from check in/out or manually corrected by an authorized user.'
+        notes: 'System-generated from check in/out via top navigation bar.'
       };
 
       store.saveAttendance(newRec);
@@ -89,12 +92,11 @@ export default function Navbar() {
       } catch (e) {}
     } else {
       // User is checking in
-      const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setCheckInTime(nowStr);
+      setCheckInTime(nowTimeStr);
       setElapsedTime('0h01');
       setIsCheckedIn(true);
       try {
-        localStorage.setItem(`peoplepay360_att_session_${userKey}`, JSON.stringify({ isCheckedIn: true, checkInTime: nowStr }));
+        localStorage.setItem(`peoplepay360_att_session_${userKey}`, JSON.stringify({ isCheckedIn: true, checkInTime: nowTimeStr }));
       } catch (e) {}
     }
   };

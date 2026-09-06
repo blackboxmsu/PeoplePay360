@@ -1,75 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Search, Plus, ArrowLeft, Check, X, Shield, CalendarPlus } from 'lucide-react';
-
-const INITIAL_REQUESTS = [
-  {
-    id: 'req-rohan-1',
-    employeeName: 'Rohan Patel',
-    type: 'Comp Off',
-    startDate: '10-Sep-2026',
-    endDate: '10-Sep-2026',
-    duration: '1 Day',
-    status: 'To Approve',
-    approver: 'Sara Khan',
-    allocationUsed: 'Comp Off Balance (2d remaining)',
-    reason: 'Weekend release deployment support'
-  },
-  {
-    id: 'req-rohan-2',
-    employeeName: 'Rohan Patel',
-    type: 'Paid Time Off',
-    startDate: '15-Aug-2026',
-    endDate: '18-Aug-2026',
-    duration: '4 Days',
-    status: 'Approved',
-    approver: 'Sara Khan',
-    allocationUsed: 'Paid Time Off 2026',
-    reason: 'Annual family festival leave'
-  },
-  {
-    id: 'req-1',
-    employeeName: 'Aarav Mehta',
-    type: 'Paid Time Off',
-    startDate: '12-Sep-2026',
-    endDate: '14-Sep-2026',
-    duration: '3 Days',
-    status: 'Approved',
-    approver: 'Sara Khan',
-    allocationUsed: 'Paid Time Off 2026',
-    reason: 'Family vacation'
-  },
-  {
-    id: 'req-2',
-    employeeName: 'Sara Khan',
-    type: 'Sick Leave',
-    startDate: '18-Sep-2026',
-    endDate: '18-Sep-2026',
-    duration: '1 Day',
-    status: 'Approved',
-    approver: 'Aditi Roy',
-    allocationUsed: 'None (Direct)',
-    reason: 'Doctor consultation'
-  },
-  {
-    id: 'req-3',
-    employeeName: 'John Dsouza',
-    type: 'Comp Off',
-    startDate: '27-Sep-2026',
-    endDate: '27-Sep-2026',
-    duration: '1 Day',
-    status: 'To Approve',
-    approver: 'Rahul Verma',
-    allocationUsed: 'Comp Off Balance',
-    reason: 'Sprint migration support'
-  }
-];
+import store from '../../services/dataStore';
+import { Search, Plus, ArrowLeft, Check, X, Shield, CalendarPlus, Filter } from 'lucide-react';
 
 export default function TimeOffRequestsPage() {
   const { user, isEmployeeSelf, canManageHR } = useAuth();
   const userName = user?.name || 'Rohan Patel';
+  const [searchParams, setSearchParams] = useSearchParams();
+  const employeeParam = searchParams.get('employee') || '';
 
-  const [requests, setRequests] = useState(INITIAL_REQUESTS);
+  const [requests, setRequests] = useState(store.getTimeOffRequests());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRequest, setSelectedRequest] = useState(null);
 
@@ -80,12 +21,20 @@ export default function TimeOffRequestsPage() {
   const [newEndDate, setNewEndDate] = useState('');
   const [newReason, setNewReason] = useState('');
 
+  useEffect(() => {
+    const unsub = store.subscribe(() => {
+      setRequests([...store.getTimeOffRequests()]);
+    });
+    return unsub;
+  }, []);
+
   const handleStatusChange = (id, newStatus) => {
-    // Only authorized HR can approve/refuse
+    // Requirement A4: Approved leave requests automatically deduct from assigned allocations
     if (!canManageHR) return;
-    setRequests(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
-    if (selectedRequest && selectedRequest.id === id) {
-      setSelectedRequest(prev => ({ ...prev, status: newStatus }));
+    store.updateRequestStatus(id, newStatus);
+    const updated = store.getTimeOffRequests().find((r) => r.id === id);
+    if (updated && selectedRequest && selectedRequest.id === id) {
+      setSelectedRequest(updated);
     }
   };
 
@@ -93,33 +42,52 @@ export default function TimeOffRequestsPage() {
     e.preventDefault();
     if (!newStartDate || !newEndDate) return;
 
+    const start = new Date(newStartDate);
+    const end = new Date(newEndDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1 || 1;
+
     const newReq = {
-      id: `req-new-${Date.now()}`,
+      id: `req-${Date.now()}`,
       employeeName: userName,
+      employeeId: user?.employeeId || 'emp-self',
       type: newType,
       startDate: newStartDate,
       endDate: newEndDate,
-      duration: '1 Day',
+      duration: diffDays,
       status: 'To Approve',
       approver: 'Sara Khan',
-      allocationUsed: `${newType} Balance`,
+      allocationUsed: `${newType} (2026 Annual Balance)`,
       reason: newReason || 'Personal leave request'
     };
 
-    setRequests([newReq, ...requests]);
+    store.saveTimeOffRequest(newReq);
     setNewModalOpen(false);
     setSelectedRequest(newReq);
   };
 
-  // Strictly filter list if employee role
+  // Filter list based on role authorization and query parameters
   const baseList = isEmployeeSelf
-    ? requests.filter(r => r.employeeName.toLowerCase() === userName.toLowerCase())
-    : requests;
+    ? (requests || []).filter((r) => {
+        const rName = (r.employeeName || '').toLowerCase().trim();
+        const uName = (userName || '').toLowerCase().trim();
+        const matchId = user?.employeeId && r.employeeId === user.employeeId;
+        return matchId || (rName && uName && rName === uName);
+      })
+    : (employeeParam
+        ? (requests || []).filter((r) => (r.employeeName || '').toLowerCase().trim() === employeeParam.toLowerCase().trim())
+        : (requests || []));
 
-  const filtered = baseList.filter(r =>
-    r.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.type.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = baseList.filter((r) =>
+    (r.employeeName && r.employeeName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.type && r.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (r.reason && r.reason.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const formatDuration = (d) => {
+    if (typeof d === 'number') return `${d} ${d === 1 ? 'Day' : 'Days'}`;
+    return d || '1 Day';
+  };
 
   // Form View (Screenshot 5)
   if (selectedRequest) {
@@ -192,7 +160,7 @@ export default function TimeOffRequestsPage() {
 
             <div className="field-group">
               <label className="field-label">Duration</label>
-              <input className="field-input" value={selectedRequest.duration} readOnly style={{ fontWeight: 700, color: '#059669' }} />
+              <input className="field-input" value={formatDuration(selectedRequest.duration)} readOnly style={{ fontWeight: 700, color: '#059669' }} />
             </div>
 
             <div className="field-group">
@@ -216,7 +184,7 @@ export default function TimeOffRequestsPage() {
 
             <div className="field-group">
               <label className="field-label">Assigned Approver</label>
-              <input className="field-input" value={selectedRequest.approver} readOnly />
+              <input className="field-input" value={selectedRequest.approver || 'Sara Khan'} readOnly />
             </div>
 
             <div className="field-group">
@@ -226,7 +194,7 @@ export default function TimeOffRequestsPage() {
 
             <div className="field-group">
               <label className="field-label">Allocation Deducted</label>
-              <input className="field-input" value={selectedRequest.allocationUsed} readOnly />
+              <input className="field-input" value={selectedRequest.allocationUsed || `${selectedRequest.type} (2026 Annual Balance)`} readOnly />
             </div>
           </div>
 
@@ -235,7 +203,7 @@ export default function TimeOffRequestsPage() {
             <textarea
               className="field-input"
               rows={3}
-              value={selectedRequest.reason}
+              value={selectedRequest.reason || 'Personal leave'}
               readOnly
               style={{ resize: 'none' }}
             />
@@ -259,6 +227,40 @@ export default function TimeOffRequestsPage() {
         </p>
       </div>
 
+      {employeeParam && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          background: '#EFF6FF',
+          border: '1px solid #BFDBFE',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.85rem',
+          color: '#1E40AF'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Filter size={15} />
+            <span>Filtered for employee: <strong>{employeeParam}</strong></span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchParams({})}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#2563EB',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              textDecoration: 'underline'
+            }}
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
+
       <div className="odoo-control-bar">
         <div className="control-bar-left">
           <button
@@ -274,7 +276,7 @@ export default function TimeOffRequestsPage() {
             <Search size={16} />
             <input
               type="text"
-              placeholder="Search by type or date..."
+              placeholder="Search by employee, type or reason..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -314,7 +316,7 @@ export default function TimeOffRequestsPage() {
                   <td>{r.type}</td>
                   <td>{r.startDate}</td>
                   <td>{r.endDate}</td>
-                  <td style={{ fontWeight: 700, color: '#059669' }}>{r.duration}</td>
+                  <td style={{ fontWeight: 700, color: '#059669' }}>{formatDuration(r.duration)}</td>
                   <td>
                     <span className={`status-pill ${r.status === 'Approved' ? 'active' : r.status === 'To Approve' ? 'draft' : 'expired'}`}>
                       ● {r.status}
@@ -349,7 +351,7 @@ export default function TimeOffRequestsPage() {
             ) : (
               <tr>
                 <td colSpan={canManageHR ? 7 : 6} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
-                  No leave requests found for your account. Click 'New Leave Request' to apply.
+                  No leave requests found. Click 'New Leave Request' to apply.
                 </td>
               </tr>
             )}
@@ -357,7 +359,7 @@ export default function TimeOffRequestsPage() {
         </table>
       </div>
 
-      {/* New Leave Request Modal for Employee */}
+      {/* New Leave Request Modal */}
       {newModalOpen && (
         <div className="modal-overlay">
           <div className="modal-dialog" style={{ maxWidth: '480px' }}>
@@ -388,6 +390,7 @@ export default function TimeOffRequestsPage() {
                     <option value="Paid Time Off">Paid Time Off (Annual Leave)</option>
                     <option value="Sick Leave">Sick Leave (Emergency)</option>
                     <option value="Comp Off">Comp Off (Overtime Compensatory)</option>
+                    <option value="Casual Leave">Casual Leave</option>
                   </select>
                 </div>
 

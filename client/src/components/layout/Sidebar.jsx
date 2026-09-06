@@ -9,11 +9,14 @@ import {
   Banknote,
   ChevronDown,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  ShieldCheck
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Sidebar({ userRole = 'HR Payroll Manager', userName = 'Admin User' }) {
   const location = useLocation();
+  const { canManageUsers } = useAuth();
 
   // Manage open/close states for collapsible submenus
   const [timeOffOpen, setTimeOffOpen] = useState(
@@ -164,6 +167,19 @@ export default function Sidebar({ userRole = 'HR Payroll Manager', userName = 'A
             </div>
           )}
         </div>
+
+        {canManageUsers && (
+          <>
+            <div className="sidebar-section-title">Administration</div>
+            <NavLink
+              to="/users"
+              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="nav-item-icon"><ShieldCheck size={18} /></span>
+              <span className="nav-item-text">User Management</span>
+            </NavLink>
+          </>
+        )}
       </div>
 
       {/* Sidebar Footer with current user preview */}

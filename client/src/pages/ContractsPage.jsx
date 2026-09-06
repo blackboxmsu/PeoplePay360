@@ -83,6 +83,26 @@ export default function ContractsPage() {
   const handleSave = (e) => {
     e.preventDefault();
 
+    // Requirement A2: Prevent multiple concurrent active/running contracts for the same employee
+    if (formData.status === 'Running') {
+      const existingRunning = contracts.find(c =>
+        c.id !== formData.id &&
+        c.employeeId === formData.employeeId &&
+        c.status === 'Running'
+      );
+      if (existingRunning) {
+        const confirmSwitch = window.confirm(
+          `Notice: Employee ${formData.employeeName || 'this staff member'} already has an active Running contract (${existingRunning.contractNumber}).\n\nTo prevent concurrent contract collision during payruns, would you like to set the existing contract to 'Expired' and make this contract the active Running one?`
+        );
+        if (confirmSwitch) {
+          const updatedOld = { ...existingRunning, status: 'Expired' };
+          store.saveContract(updatedOld);
+        } else {
+          return;
+        }
+      }
+    }
+
     // Derive duration string
     let derivedDuration = formData.duration;
     if (!derivedDuration) {
@@ -104,18 +124,25 @@ export default function ContractsPage() {
     setIsEditing(false);
   };
 
-  const filteredContracts = contracts.filter((c) => {
+  const filteredContracts = (contracts || []).filter((c) => {
+    const cNum = (c.contractNumber || '').toLowerCase();
+    const cEmpName = (c.employeeName || '').toLowerCase().trim();
+    const cDept = (c.department || '').toLowerCase();
+    const sTerm = (searchTerm || '').toLowerCase().trim();
+
     const matchesSearch =
-      c.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (c.department && c.department.toLowerCase().includes(searchTerm.toLowerCase()));
+      cNum.includes(sTerm) ||
+      cEmpName.includes(sTerm) ||
+      cDept.includes(sTerm);
 
     if (isEmployeeSelf) {
-      return matchesSearch && (c.employeeName.toLowerCase() === userName.toLowerCase() || c.employeeId === user?.employeeId);
+      const uName = (userName || '').toLowerCase().trim();
+      const matchId = user?.employeeId && c.employeeId === user.employeeId;
+      return matchesSearch && (matchId || (cEmpName && uName && cEmpName === uName));
     }
 
     const matchesEmployee = employeeFilter
-      ? c.employeeName.toLowerCase() === employeeFilter.toLowerCase() ||
+      ? cEmpName === (employeeFilter || '').toLowerCase().trim() ||
         (c.employeeId && c.employeeId === employeeFilter)
       : true;
 

@@ -1,0 +1,1276 @@
+Odoo HR Payroll Hackathon — Functional Screen Flow
+1) Employee &amp; Contract Flow
+Use arrows as navigation flow: user reaches Employee screens, opens a record, then accesses related Contract records.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Employees
+Default view: Kanban
+NEW
+Search employees…
+Kanban
+List
+AM
+Aarav Mehta
+Payroll Specialist
+Finance
+● Active
+SK
+Sara Khan
+HR Officer
+HR
+● Active
+JD
+John Dsouza
+Developer
+Engineering
+● Active
+NP
+Neha Patel
+Recruiter
+HR
+● Active
+Useful note: Kanban is good for browsing; clicking a card should open the same Employee Form used everywhere else.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Employees
+List view for sort, filter and bulk scanning
+NEW
+Search employees…
+Kanban
+List
+Employee
+Work Email
+Job Position
+Department
+Status
+Aarav Mehta
+aarav@oxp.com
+Payroll Specialist
+Finance
+Active
+Sara Khan
+sara@oxp.com
+HR Officer
+HR
+Active
+John Dsouza
+john@oxp.com
+Developer
+Engineering
+Active
+Neha Patel
+neha@oxp.com
+Recruiter
+HR
+Active
+Useful note: the list view is the main entry point for opening a specific employee record quickly.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Employee / Aarav Mehta
+Main employee form with related HR actions
+EDIT
+Contracts 2
+Attendance 14
+Time Off 3
+AM
+Aarav Mehta
+Payroll Specialist • Finance
+aarav@oxp.com | +91 98765 43210
+Work Information
+Private Information
+Department
+Finance
+Manager
+Sara Khan
+Working Schedule
+40 Hours / Week
+Company
+OXP Pvt Ltd
+Job Position
+Payroll Specialist
+Work Location
+Mumbai
+Status
+Active
+Work Email
+aarav@oxp.com
+Useful note: smart buttons should open related Contracts, Attendance and Time Off records filtered for the current employee.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Contracts
+List view of employee contracts
+NEW
+Search contracts…
+Contract
+Employee
+Start
+End
+Wage / Month
+Status
+CON/2026/0042
+Aarav Mehta
+01-Jan-26
+—
+₹85,000
+Running
+CON/2025/0018
+Aarav Mehta
+01-Jul-25
+31-Dec-25
+₹78,000
+Expired
+CON/2026/0031
+Sara Khan
+01-Jan-26
+—
+₹95,000
+Running
+Useful note: retain contract history, but make the active Running contract obvious because payroll depends on it.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Contract / CON/2026/0042
+Form view of one contract
+Employee
+Aarav Mehta
+Start Date
+01-Jan-2026
+End Date
+—
+Status
+Running
+Department
+Finance
+Job Position
+Payroll Specialist
+Wage / Month
+₹85,000
+Working Schedule
+40 Hours / Week
+Salary Structure / Notes
+Structure Type: Employee Salary
+This running contract is the source for payroll calculation in the active period.
+Useful note: for the problem statement, one employee should not have multiple Running contracts for the same period.
+Open related contracts
+2) Attendance Flow
+Attendance records can be opened from the Attendance menu or from the Employee Form smart button.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Attendance
+List view of employee attendance records
+NEW
+Search attendance…
+Today
+Employee: Aarav
+Employee
+Check In
+Check Out
+Worked Hours
+Status
+Aarav Mehta
+09:05
+18:10
+9.08
+Present
+Sara Khan
+09:15
+18:02
+8.78
+Present
+John Dsouza
+09:32
+17:58
+8.43
+Present
+Neha Patel
+—
+—
+0.00
+Absent
+Useful note: list view should help users review raw check-in / check-out data and identify missing punches quickly.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Attendance / Aarav Mehta / 02-Sep-2026
+Form view of one attendance record
+EDIT
+Employee
+Aarav Mehta
+Check In
+02-Sep-2026 09:05
+Check Out
+02-Sep-2026 18:10
+Worked Hours
+9.08
+Department
+Finance
+Manager
+Sara Khan
+Status
+Present
+Overtime
+0.50 hrs
+Notes
+System-generated from check in/out or manually corrected by an authorized user.
+Useful note: worked hours and overtime should be easy to read because they may later influence payroll or reporting.
+Open selected attendance record
+3) Time Off Flow
+Requests, Allocations and Time Off Types must be reached from Time Off ▼ in the navbar. Do not add separate page buttons for them.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Time Off Requests
+List view opened from Time Off ▼ → Requests
+NEW
+Search requests…
+My Team
+Employee
+Type
+Start
+End
+Duration
+Status
+Aarav Mehta
+Paid Time Off
+12-Sep
+14-Sep
+3 Days
+Approved
+Sara Khan
+Sick Leave
+18-Sep
+18-Sep
+1 Day
+Approved
+John Dsouza
+Comp Off
+27-Sep
+27-Sep
+1 Day
+To Approve
+Useful note: request status should show the approval lifecycle clearly.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Allocation / Aarav Mehta
+Form view of one allocation record
+EDIT
+Employee
+Aarav Mehta
+Time Off Type
+Paid Time Off
+Allocated
+20 Days
+Status
+Approved
+Taken
+8 Days
+Remaining
+12 Days
+Approver
+Sara Khan
+Validity
+2026 Annual Balance
+Description
+Annual leave balance granted at start of policy year.
+Useful note: approved allocation is what creates available leave balance for the employee.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Time Off Request / Aarav Mehta
+Form view of one request
+Refuse
+Employee
+Aarav Mehta
+Time Off Type
+Paid Time Off
+Start Date
+12-Sep-2026
+End Date
+14-Sep-2026
+Duration
+3 Days
+Status
+Approved
+Approver
+Sara Khan
+Allocation Used
+Paid Time Off 2026
+Reason
+Family vacation
+Open time off
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Allocations
+List view opened from Time Off ▼ → Allocations
+NEW
+Search allocations…
+Employee
+Type
+Allocated
+Taken
+Remaining
+Status
+Aarav Mehta
+Paid Time Off
+20 days
+8 days
+12 days
+Approved
+Sara Khan
+Paid Time Off
+18 days
+4 days
+14 days
+Approved
+Neha Patel
+Comp Off
+2 days
+1 day
+1 day
+To Approve
+Useful note: the list should expose the balance math at a glance — Allocated, Taken and Remaining.
+Open selected allocation
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Time Off Types
+List view opened from Time Off ▼ → Time Off Types
+NEW
+Search time off types…
+Type
+Unit
+Allocation
+Approval
+Status
+Paid Time Off
+Days
+Required
+Manager
+Active
+Sick Leave
+Days
+No
+Manager
+Active
+Comp Off
+Hours
+Required
+Officer
+Active
+Useful note: this list defines policy rules, not employee transactions.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Time Off Type / Paid Time Off
+Form view of one time off type
+EDIT
+Type Name
+Paid Time Off
+Unit
+Days
+Requires Allocation
+Yes
+Active
+True
+Approval
+Manager
+Payroll / Work Entry
+Leave Work Entry
+Display Color
+Blue
+Configuration Notes
+Standard annual leave. Balance comes from approved allocations.
+Useful note: Time Off Type drives approval behavior and whether a request needs an allocation.
+Open selected type
+4) Payroll — Payrun &amp; Payslips
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Payruns
+Payrun view for payroll periods
+NEW
+Search payruns…
+2026
+January 2026
+01-Jan-2026 — 31-Jan-2026
+42 employees
+Paid
+1 warning
+↗
+February 2026
+01-Feb-2026 — 28-Feb-2026
+42 employees
+Validated
+2 warnings
+↗
+March 2026
+01-Mar-2026 — 31-Mar-2026
+42 employees
+Draft
+No warnings
+↗
+Useful note: each Payrun represents one payroll period and groups the payslips generated for that period.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Payrun / February 2026
+Open one Payrun to compute and manage its payslips
+COMPUTE
+VALIDATE
+MARK PAID
+SEND PAYSLIPS
+Name
+February 2026
+Salary Structure
+Regular Salary
+Period
+01-Feb — 28-Feb
+Status
+Validated
+Payslips in this Payrun
+Employee
+Warning
+Worked
+Basic
+Gross
+Net
+Status
+PDF
+Aarav Mehta
+—
+22
+₹50k
+₹80k
+₹75k
+Done
+PDF
+Sara Khan
+A/C missing
+22
+₹60k
+₹96k
+₹88k
+Done
+PDF
+John Dsouza
+Duplicate
+20
+₹45k
+₹72k
+₹66k
+Draft
+PDF
+Useful note: warnings such as missing account data or duplicate payslips should be visible before payroll is finalized.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Payslips
+List view of employee payslips
+NEW
+Search payslips…
+Period: Feb 2026
+Employee
+Warning
+Period
+Basic
+Gross
+Net
+Structure
+Status
+Aarav Mehta
+—
+01-Feb — 28-Feb
+₹50k
+₹80k
+₹75k
+Regular
+Done
+Sara Khan
+A/C missing
+01-Feb — 28-Feb
+₹60k
+₹96k
+₹88k
+Regular
+Done
+John Dsouza
+Duplicate
+01-Feb — 28-Feb
+₹45k
+₹72k
+₹66k
+Regular
+Draft
+Neha Patel
+—
+01-Feb — 28-Feb
+₹40k
+₹64k
+₹59k
+Regular
+Done
+Useful note: selecting any payslip opens the detailed salary computation and PDF action for that employee.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Payslip / Aarav Mehta / February 2026
+Detailed salary computation for one employee
+COMPUTE
+MARK PAID
+PRINT PAYSLIP
+Employee
+Aarav Mehta
+Salary Structure
+Regular Salary
+Pay Run
+February 2026
+Period
+01-Feb — 28-Feb
+Status
+Done
+Worked Days
+22
+Salary Computation
+Rule
+Category
+Amount
+Code
+Basic Salary
+Basic
+₹50,000
+BASIC
+House Rent Allowance
+Allowance
+₹20,000
+HRA
+Standard Allowance
+Allowance
+₹10,000
+STD
+Gross Salary
+Gross
+₹80,000
+GROSS
+Provident Fund
+Deduction
+-₹3,000
+PF
+Professional Tax
+Deduction
+-₹2,000
+PT
+Net Salary
+Net
+₹75,000
+NET
+Useful note: the Print action generates the employee payslip as PDF; that PDF can be sent from the parent Payrun.
+Open Payrun
+Open payslip
+Open selected payslip
+5) Payroll Configuration — Salary Structures &amp; Rules
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Salary Structures
+List view
+NEW
+Search structures…
+Structure Name
+Rules
+Employees
+Active
+Regular Salary
+12 rules
+42 employees
+Active
+Intern Salary
+8 rules
+6 employees
+Active
+Contractor
+6 rules
+9 employees
+Active
+Useful note: the Salary Structure selected on a Payrun determines which set of salary rules will calculate each payslip.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Salary Structure / Regular Salary
+Form view with its salary rules
+Structure Name
+Regular Salary
+Active
+True
+Salary Rules
+Rule Name
+Code
+Category
+Sequence
+Basic Salary
+BASIC
+Basic
+1
+House Rent Allowance
+HRA
+Allowance
+10
+Standard Allowance
+STD
+Allowance
+20
+Performance Bonus
+BONUS
+Allowance
+30
+Leave Travel Allowance
+LTA
+Allowance
+40
+Fixed Allowance
+FIX
+Allowance
+50
+Gross Salary
+GROSS
+Gross
+60
+LWF fund
+LWF
+Deduction
+70
+Provident Fund
+PF
+Deduction
+80
+ESIC
+ESIC
+Deduction
+90
+Professional Tax
+PT
+Deduction
+100
+Net Salary
+NET
+Net
+110
+Useful note: rule order matters. Keep sequence visible so participants understand the calculation order.
+Rules created here is just for reference
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Salary Rules
+List view
+NEW
+Search salary rules…
+Regular Salary
+Rule Name
+Code
+Category
+Structure
+Sequence
+Basic Salary
+BASIC
+Basic
+Regular Salary
+1
+House Rent Allowance
+HRA
+Allowance
+Regular Salary
+10
+Standard Allowance
+STD
+Allowance
+Regular Salary
+20
+Performance Bonus
+BONUS
+Allowance
+Regular Salary
+30
+Leave Travel Allowance
+LTA
+Allowance
+Regular Salary
+40
+Fixed Allowance
+FIX
+Allowance
+Regular Salary
+50
+Gross Salary
+GROSS
+Gross
+Regular Salary
+60
+Useful note: List view should expose name, code, category, structure and sequence — the fields needed to understand
+a payroll rule quickly.
+HR
+Employees ▼
+Contracts ▼
+Attendance
+Time Off ▼
+Payroll
+Salary Rule / Basic Salary
+Form view
+EDIT
+Rule Name
+Basic Salary
+Code
+BASIC
+Category
+Basic
+Sequence
+1
+Salary Structure
+Regular Salary
+Computation
+Percentage of Wage
+Percentage
+50%
+Quantity
+1
+Computation options from the source
+Fixed Amount
+Percentage of Wage
+Python Code
+Example expression: result = categories['BASIC']
+Useful note: a Salary Rule needs a clear computation method and category because these drive the lines displayed
+hon the final payslip.
+open structure
+Open salary rule
+Configured structure is selected when a Payrun is created
+The Payrun is created only after employee selection.
+Sep 1
+→
+Sep 30
+Pay Structure
+United States: Regular Pay
+Period
+Continue
+Discard
+Participant note: this popup collects the payrun scope only. Continue should not create the Payrun yet.
+Select Employee Records
+×
+Search employees...
+1–22 / 22
+✓
+Employee
+Working Hours
+Start Date
+Wage
+☐
+Anita Oliver
+40 hours/week
+Jan 1
+$ 4,500.00
+☐
+Audrey Peterson
+40 hours/week
+Jan 1
+$ 4,000.00
+☐
+Billy Kyle
+40 hours/week
+Sep 2
+$ 3,100.00
+☐
+Eli Lambert
+40 hours/week
+Jan 1
+$ 4,350.00
+☐
+Paul Williams
+40 hours/week
+Jul 1
+$ 3,950.00
+Create Payrun
+Back
+Participant note: user selects one or more eligible employees, then clicks Create Payrun. The created Payrun should contain only the selected employees.
+Create payrun
+on continue
+Structures group salary rules; rules define the ordered salary computation used by a payslip. Both require List and Form views.
+6) Payroll Dashboard
+Dashboard challenge: combine Payroll with HR data from multiple models and present useful insights with cards, charts, and summaries.
+HR
+Employees
+Attendance
+Time Off
+Payroll
+Payroll Dashboard
+Dashboard should help payroll/HR users understand payments, staffing impact, leave patterns, and attendance quality for the selected period.
+Period
+Sep 2026
+Department
+All Departments
+Employee Type
+All Types
+Company
+OXP Pvt Ltd
+Total Net Salary Paid
+₹ 18.4L
++8.5% vs previous month
+Payslips Generated
+148
+142 paid, 6 pending
+Avg Salary / Employee
+₹ 12,432
+Based on current payrun
+Approved Time Off Days
+34 Days
+Across selected period
+Attendance Health
+94%
+Present / reviewed records
+Salary Cost by Department
+Source: Payslips + Employee Department
+HR
+₹ 110k
+Sales
+₹ 150k
+Support
+₹ 90k
+Finance
+₹ 130k
+IT
+₹ 170k
+Monthly Net Salary Trend
+Source: historical Payslips / Payruns
+Apr
+14.8L
+May
+15.2L
+Jun
+14.3L
+Jul
+15.0L
+Aug
+17.1L
+Sep
+18.4L
+Payslip Status &amp; Payroll Alerts
+Source: Payrun + Payslip validation
+Status split
+Paid
+Done
+Pending
+Warning
+Current alerts
+• 2 employees missing bank account
+• 1 duplicate payslip warning
+• 4 drafts still not validated
+• 3 contracts expiring this month
+Attendance Overview
+Source: Attendance
+Present
+94
+Late
+18
+Absent
+9
+Overtime
+22
+Missing check-outs: 5
+Manual attendance edits: 7
+Attendance coverage: 94%
+Time Off Overview
+Source: Time Off Requests + Allocations
+Type
+Approved Days
+Pending
+Remaining Balance
+Paid Time Off
+24
+3
+118 Days
+Sick Leave
+6
+1
+N/A
+Comp Off
+4
+2
+11 Days
+Department Overview
+Source: Employee + Contract + Payslip totals
+Department
+Headcount
+Monthly Salary
+IT
+18
+₹ 4.2L
+Sales
+22
+₹ 5.7L
+HR
+8
+₹ 1.9L
+Support
+14
+₹ 3.1L
+Models to Aggregate
+This is the actual challenge behind the dashboard.
+• Employees / Departments → headcount, ownership, grouping
+• Contracts → wage, schedule, active employees
+• Payruns / Payslips → salary totals, paid vs pending, trend data
+• Attendance → presence, absences, late entries, overtime
+• Time Off Requests / Allocations → leave taken and leave balances
+Continue into dashboard view
+Dashboard
+Payruns
+Payslips
+Structures
+Rules
+Menus under Payroll
+Employees
+departments
+contracts
+Menus under Employees
+Dashboard
+Time offs
+Time off Types
+Allocations
+Menus under Time Off
+open allocation
+Useful note: if the selected type requires allocation, the request should clearly show which balance was consumed.
+Employee &amp; Contract
+- Employees should be viewable in both Kanban and List views.
+- Opening an employee should show their HR details and related records such as Contracts,
+Attendance, Time Off, and Allocations.
+- An employee can have multiple contracts over time.
+- Payroll should use the contract applicable to the selected payroll period.
+Working Schedule
+- Working Schedules need List and Form views. Clicking a row should open that schedule.
+- List should surface name, calendar type, days/week, hours/week, company and status.
+- Form defines the weekly pattern: day, start/end time, optional break and hours. Weekly
+hours should be derived from the schedule.
+- A schedule can be assigned to an Employee/Contract and used by Attendance and Payroll.
+Shift, flexible-time and other rules are open to the participant.
+Attendances:
+- Attendance can be accessed globally or from an individual employee.
+- Store check-in, check-out, worked hours, and attendance status.
+- When opened from an employee, only that employee’s attendance should be shown.
+- Attendance data should be usable later for reporting/dashboard insights.
+Time Off:
+- Requests should support a simple approval flow.
+- For leave types that require allocation, approved leave should reduce the
+employee’s available balance.
+- Time Off Types should define how each leave type behaves. The exact
+policies and validations are open to interpretation.
+Approve
+Refuse
+Approve
+Refuse
+Approve
+Refuse
+Approve
+Refuse
+Approve
+Payrun Creation:
+Creating a Payrun happens in two steps:
+- Select the payroll scope, such as employee type, salary structure, and period.
+- Select the employees to include.
+- Continue only moves to employee selection. A Payrun is created only after clicking “Create
+Payrun”.
+Only the selected employees should be included in that Payrun.
+Payruns &amp; Payslips:
+A Payrun represents payroll processing for a particular period.
+Each selected employee should have a Payslip linked to the Payrun.
+Computing payroll should use the employee’s applicable contract and selected salary structure.
+Payslips should show understandable components such as Basic, Allowances, Deductions, Gross,
+and Net Salary.
+Payroll issues, such as missing required information or duplicate payslips, should be visible to the
+user.
+Payroll Workflow:
+The intended flow is broadly:
+Draft → Compute → Validate → Mark Paid
+Paid/finalised payroll should remain available as historical data.
+Salary Structures &amp; Salary Rules:
+A Salary Structure contains the rules used to calculate salary.
+Salary Rules can represent Basic Salary, Allowances, Deductions, Gross, Net, etc.
+Rules should be processed according to their sequence.
+Different calculation methods may be supported, such as fixed amounts, percentages, or formulas.
+Participants are free to design the calculation engine as long as salary rules actually drive Payslip
+calculations.
+Payslip PDF:
+Users should be able to generate/print a Payslip showing the employee’s payroll calculation for
+that period.
+Sending Payslips can also be supported from the Payrun.
+Payroll Dashboard:
+The dashboard should use actual data created through the HR and Payroll flows rather than
+hardcoded values.
+It should provide useful payroll/HR insights such as:
+Salary totals
+Payslip status
+Salary by department
+Salary trends
+Attendance overview
+Time Off overview
+Payroll warnings or items requiring attention
+Filters such as Period, Department, Employee Type, or Company should affect the relevant
+dashboard data.
+Working Schedule — List &amp; Form Views
+Open schedule
+WORKING SCHEDULE NOTE
+• Required views: List and Form. The List is for finding/opening schedules; the Form defines one schedule.
+• A schedule should capture the weekly working pattern (days, working time and total weekly hours). Breaks or variable shifts can be handled in your own way.
+• Employee/Contract can reference a Working Schedule. Attendance and Payroll may use it as the expected working time.
+Working Schedule
+Working Schedules
++  New Schedule
+List
+Calendar
+Search schedules…
+Filter
+Columns
+Schedule Name
+Days / Week
+Hours / Week
+Company
+Status
+40 Hours / Week
+5
+40h
+My Company
+Active
+Night Shift
+5
+40h
+My Company
+Active
+Retail Weekend
+5
+40h
+My Company
+Active
+Flexible Hybrid
+5
+37.5h
+My Company
+Active
+Part-time 20h
+4
+20h
+My Company
+Inactive
+Select a schedule to open its Form view
+←  Back to list
+40 Hours / Week
+Schedule Name
+40 Hours / Week
+Company
+My Company
+Days per Week
+5
+Hours per Week
+40h
+Timezone
+Company timezone
+Weekly Schedule
++  Add Day
+Day
+Start Time
+End Time
+Break
+Hours
+Monday
+9:00 AM
+6:00 PM
+1h
+8h
+×
+Tuesday
+9:00 AM
+6:00 PM
+1h
+8h
+×
+Wednesday
+9:00 AM
+6:00 PM
+1h
+8h
+×
+Thursday
+9:00 AM
+6:00 PM
+1h
+8h
+×
+Friday
+9:00 AM
+6:00 PM
+1h
+8h
+×
+Total Weekly Hours:
+40h
+Use this schedule as the employee/contract working pattern.
+Working Schedule
+0) Login &amp; User Access Flow
+Administrators create user accounts and assign access. Employees use Login to enter the HR and Payroll application.
+HR Portal
+Welcome back
+Sign in to continue to your workspace.
+Work Email
+name@company.com
+Password
+••••••••••
+Forgot password?
+Sign In
+Accounts are created by an administrator.
+After sign-in, show only the modules and actions allowed by the user’s assigned role.
+Successful sign in
+User can
+now log in
+User Management
+ADMIN ONLY
++  New User
+Search users, employees or email…
+Role Filter
+User
+Employee
+Work Email
+Role
+Status
+Aarav Mehta
+Aarav Mehta
+aarav@company.com
+Payroll User
+Active
+Maya Shah
+Maya Shah
+maya@company.com
+Time Off Admin
+Active
+Rohan Patel
+Rohan Patel
+rohan@company.com
+Time Off User
+Active
+Nisha Rao
+Nisha Rao
+nisha@company.com
+Payroll Admin
+Active
+Select a user to edit access, or create a new user.
+Create / Edit User
+Employee *
+Select employee
+Work Email *
+employee@company.com
+Roles *
+Employee
+Hr Manager
+Hr Payroll User
+Hr Payroll Admin
+Account Status
+Active
+Create User / Save Access
+User accounts are separate from Employee records, but should be linked to an employee for access and ownership.
+Open on New User
+• In the ERP flow. User accounts are created by an Admin.
+• When creating a user, link the account to the relevant employee and assign one or more roles.
+• Roles control which modules, records and actions become available after login.
+• Users must not be able to assign or elevate their own roles.
+• Password reset, invitations, SSO, etc. can be added as enhancements.
+LOGIN / USER ACCESS NOTE
+Attendance Widget
+⏱
+Welcome back
+User Name!
+9:48 AM
+—  Now
+6h56
+Today
+6h56
+Check Out
+i
+Clicking the attendance icon
+opens the Check In / Check Out
+popup.
+ATTENDANCE QUICK ACTION NOTE
+• Clicking the red attendance icon should open a popup.
+• If there is no active session, show Check In.
+• If the user is already checked in, show Check Out.
+• The popup should display elapsed time till now.
+• After successful Check In, the status indicator changes to green.
+Employees can mark attendance from the quick widget and review records from the Attendance module.
+Admin
+New Pay Run
+×
+Computation Note:
+- Fixed Amount: uses the exact value entered in the rule, e.g. Meal Allowance = 2,000.
+- Percentage: calculates the rule as a percentage of a selected base such as Contract Wage,
+Basic Salary, or Gross Salary, e.g. HRA = 20% × Basic Salary.
+- Python Code / Formula: is used for advanced calculations where fixed or percentage methods
+are not sufficient, such as attendance-based salary, overtime, unpaid leave deductions, or
+calculations using multiple salary-rule values.

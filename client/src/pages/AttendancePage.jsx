@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import store from '../services/dataStore';
-import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield, Save, X } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Edit2, Clock, CheckCircle2, Shield, Save, X, Filter } from 'lucide-react';
 
 export default function AttendancePage() {
   const { user, role, isEmployeeSelf } = useAuth();
   const userName = user?.name || 'Rohan Patel';
   const canManageAttendance = ['hr_manager', 'admin'].includes(role);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const employeeParam = searchParams.get('employee') || '';
 
   const [attendanceList, setAttendanceList] = useState(store.getAttendance());
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,11 +39,18 @@ export default function AttendancePage() {
     return unsub;
   }, []);
 
-  // Filter records based on role authorization
+  // Filter records based on role authorization and query parameter
   // If role is employee, ONLY show current user's records!
   const baseList = isEmployeeSelf
-    ? attendanceList.filter(a => a.employeeName.toLowerCase() === userName.toLowerCase())
-    : attendanceList;
+    ? (attendanceList || []).filter(a => {
+        const aName = (a.employeeName || '').toLowerCase().trim();
+        const uName = (userName || '').toLowerCase().trim();
+        const matchId = user?.employeeId && a.employeeId === user.employeeId;
+        return matchId || (aName && uName && aName === uName);
+      })
+    : (employeeParam
+        ? (attendanceList || []).filter(a => (a.employeeName || '').toLowerCase().trim() === employeeParam.toLowerCase().trim())
+        : (attendanceList || []));
 
   const filteredAttendance = baseList.filter(a => {
     const matchesSearch =
@@ -332,6 +342,40 @@ export default function AttendancePage() {
           }
         </p>
       </div>
+
+      {employeeParam && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          background: '#EFF6FF',
+          border: '1px solid #BFDBFE',
+          borderRadius: 'var(--radius-md)',
+          fontSize: '0.85rem',
+          color: '#1E40AF'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Filter size={15} />
+            <span>Filtered attendance for employee: <strong>{employeeParam}</strong></span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSearchParams({})}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#2563EB',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              textDecoration: 'underline'
+            }}
+          >
+            Clear Filter
+          </button>
+        </div>
+      )}
 
       <div className="odoo-control-bar">
         <div className="control-bar-left">

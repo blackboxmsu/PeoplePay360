@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import AppShell from './components/layout/AppShell';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Auth Page
 import LoginPage from './pages/LoginPage';
@@ -28,20 +29,21 @@ import SalaryRulesPage from './pages/payroll/SalaryRulesPage';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Authentication Route */}
-          <Route path="/login" element={<LoginPage />} />
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Authentication Route */}
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Protected Application Routes */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <AppShell />
-              </ProtectedRoute>
-            }
-          >
+            {/* Protected Application Routes */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppShell />
+                </ProtectedRoute>
+              }
+            >
             {/* Dashboard (All authenticated roles) */}
             <Route path="/" element={<DashboardPage />} />
 
@@ -158,5 +160,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+  </ErrorBoundary>
   );
 }

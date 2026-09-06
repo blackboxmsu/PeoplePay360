@@ -1,0 +1,1055 @@
+=== PAGE 4 ===
+
+ 3.	Users	&	Roles
+
+Role
+
+Who
+
+Needs
+
+Key	Actions
+
+Sees
+
+Decisions
+
+Employee
+
+Any	staff
+
+member
+
+Self-service
+
+visibility
+
+View	own	profile,	attendance,	leave	balance;	create
+
+attendance/time-off	requests;	check	in/out
+
+Own	records	only
+
+Whether	to	submit	a	leave
+
+request
+
+HR
+
+Manager
+
+HR	staff
+
+Manage	HR
+
+master	data
+
+Full	CRUD	on	Employees,	Attendance,	Contracts,	Working
+
+Schedules,	Time	Off;	approve/refuse	leave
+
+All	employees'	HR
+
+data	(no	payroll)
+
+Approve/refuse	Time	Off;
+
+contract	terms
+
+HR	Payroll
+
+User
+
+Payroll
+
+executor
+
+Run	payroll
+
+operationally
+
+All	HR	Manager	rights	+	Create/Read/Update	Payruns	&
+
+Payslips;	read-only	Salary	Structures/Rules
+
+Payroll	data,	read-
+
+only	salary	config
+
+Which	employees	to	include	in	a
+
+Payrun;	compute/validate
+
+HR	Payroll
+
+Manager
+
+Payroll
+
+lead
+
+Full	payroll
+
+control
+
+All	HR	Payroll	User	rights	+	full	CRUD	on	Payruns,
+
+Payslips,	Salary	Structures,	Salary	Rules
+
+Everything	payroll-
+
+related
+
+Salary	rule	design;	final	Mark
+
+Paid
+
+Admin
+
+System
+
+owner
+
+Full	system
+
+control
+
+Full	access	to	all	modules;	user	management,	role
+
+assignment
+
+Everything
+
+Who	gets	which	role
+
+4.	Business	Entities
+
+Entity
+
+Why	It	Matters
+
+Key	Relationships
+
+User	(Account)
+
+Login	identity,	separate	from	Employee,	carries
+
+Role(s)
+
+1:1	with	Employee	(usually)
+
+Employee
+
+Central	hub	of	the	whole	system
+
+1:N	Contracts,	1:N	Attendance,	1:N	Time	Off	Requests,	1:N	Allocations,	N:1
+
+Department,	N:1	Manager,	N:1	Working	Schedule
+
+Department
+
+Grouping	for	reporting/dashboard
+
+1:N	Employees
+
+Contract
+
+Period-specific	employment	terms;	source	of	truth
+
+for	payroll	wage/structure
+
+N:1	Employee,	N:1	Salary	Structure,	N:1	Working	Schedule
+
+Working
+
+Schedule
+
+Defines	expected	weekly	hours;	used	by	Attendance
+
+&	Payroll
+
+1:N	Contracts/Employees
+
+Attendance
+
+Daily	presence	record;	feeds	dashboard	and
+
+(optionally)	payroll
+
+N:1	Employee
+
+Time	Off	Type
+
+Policy	definition	(unit,	allocation	requirement,
+
+approver)
+
+1:N	Allocations,	1:N	Requests
+
+Allocation
+
+Leave	balance	grant;	must	be	approved	before	use
+
+N:1	Employee,	N:1	Time	Off	Type
+
+Time	Off
+
+Request
+
+Leave	transaction;	approval	consumes	Allocation
+
+balance
+
+N:1	Employee,	N:1	Time	Off	Type,	N:1	Allocation
+
+Salary	Structure
+
+Named	container	of	ordered	Salary	Rules
+
+1:N	Salary	Rules,	1:N	Contracts,	1:N	Payruns
+
+Salary	Rule
+
+Individual	computation	line	(Basic,	Allowance,
+
+Deduction,	Gross,	Net)
+
+N:1	Salary	Structure
+
+Payrun
+
+Batch	representing	one	payroll	period	for	selected
+
+employees
+
+1:N	Payslips,	N:1	Salary	Structure
+
+Payslip
+
+Computed	salary	document	per	employee	per
+
+period
+
+N:1	Payrun,	N:1	Employee,	N:1	Contract,	contains	N	Payslip	Lines
+
+Payslip	Line
+
+One	computed	Salary	Rule	result	on	a	Payslip
+
+N:1	Payslip,	N:1	Salary	Rule
+
+Notification
+
+(lightweight)
+
+Alerts	for	approvals,	payslip	generation,	warnings
+
+N:1	User
+
+
+=== PAGE 5 ===
+
+ 5.	Functional	Modules
+
+Modules	are	grouped	by	business	function,	not	technical	layer.	Priority	tags	reflect	Section	6.
+
+M1	ΓÇö	Authentication	&	Role	Management	
+
+P0
+
+Purpose
+
+Role-based	login	and	route	protection	for	5	roles
+
+Users/Roles
+
+All	roles
+
+Main	Features
+
+Login	form,	JWT	session,	protected	routes,	role-based	menu	visibility,	seeded	demo	users	(one	per	role)
+
+Input
+
+Email	+	password
+
+Output
+
+JWT	token	+	role	claim;	redirect	to	role-appropriate	dashboard
+
+Workflow
+
+Login	ΓåÆ	verify	credentials	ΓåÆ	issue	JWT	with	role	ΓåÆ	frontend	stores	token	ΓåÆ	route	guard	checks	role	per	page
+
+UI	Screens
+
+Login	page;	(P2)	minimal	User	Management	list	for	Admin
+
+Required	Data
+
+User:	email,	passwordHash,	role,	employeeId
+
+API
+
+POST	/api/auth/login,	GET	/api/auth/me
+
+M2	ΓÇö	Employee	&	Department	Management	
+
+P0
+
+Purpose
+
+Central	hub	for	employee	master	data
+
+Users/Roles
+
+HR	Manager,	HR	Payroll	User/Manager,	Admin	(full);	Employee	(self,	read-only)
+
+Main	Features
+
+List	+	Kanban	views,	Employee	Form	with	smart-button	counts	linking	to	Contracts/Attendance/Time	Off
+
+Input
+
+Name,	email,	department,	manager,	job	position,	working	schedule,	status
+
+Output
+
+Employee	record;	filtered	related-record	views
+
+Workflow
+
+Create/Edit	Employee	ΓåÆ	assign	Department/Manager/Schedule	ΓåÆ	navigate	to	related	Contracts/Attendance/Time	Off	via	smart	buttons
+
+UI	Screens
+
+Employee	List,	Employee	Kanban,	Employee	Form
+
+Required	Data
+
+Employee:	name,	email,	phone,	department,	manager,	jobPosition,	workingSchedule,	status,	workLocation
+
+API
+
+GET/POST/PUT	/api/employees,	GET	/api/employees/:id
+
+M3	ΓÇö	Contract	Management	
+
+P0
+
+Purpose
+
+Track	period-specific	employment	terms;	single	source	of	truth	for	payroll	wage/structure
+
+Users/Roles
+
+HR	Manager,	HR	Payroll	(read	for	payroll	use),	Admin
+
+Main
+
+Features
+
+Contract	history	list	highlighting	active	"Running"	contract;	wage,	salary	structure,	working	schedule	assignment;	business	rule	preventing	two
+
+concurrent	Running	contracts	per	employee
+
+Input
+
+Employee,	start/end	date,	wage,	department,	job	position,	salary	structure
+
+Output
+
+Contract	record	with	computed	status	(Draft/Running/Expired)
+
+Workflow
+
+Create	Contract	ΓåÆ	validate	no	overlapping	Running	contract	ΓåÆ	status	auto-set	by	date	range
+
+UI	Screens
+
+Contracts	List	(filtered	per	employee),	Contract	Form
+
+Required
+
+Data
+
+Contract:	employeeId,	startDate,	endDate,	wage,	status,	department,	jobPosition,	salaryStructureId,	workingScheduleId
+
+API
+
+GET/POST/PUT	/api/contracts,	GET	/api/employees/:id/contracts
+
+M4	ΓÇö	Working	Schedule	
+
+P1
+
+Purpose
+
+Define	weekly	working	pattern;	auto-derive	weekly	hours
+
+Users/Roles
+
+HR	Manager,	Admin
+
+Main	Features
+
+List	+	Form;	per-day	Start/End/Break;	auto-computed	total	weekly	hours
+
+Input
+
+Name,	per-day	start/end/break	times
+
+Output
+
+Schedule	with	computed	weekly	hours,	assignable	to	Employee/Contract
+
+Workflow
+
+Define	days	ΓåÆ	system	sums	(end-start-break)	per	day	ΓåÆ	total	weekly	hours
+
+UI	Screens
+
+Schedule	List,	Schedule	Form
+
+Required	Data
+
+WorkingSchedule:	name,	days[{day,start,end,break}],	weeklyHours	(computed),	status
+
+API
+
+GET/POST/PUT	/api/schedules
+
+M5	ΓÇö	Attendance	
+
+P0
+
+Purpose
+
+Capture	daily	presence;	feed	dashboard	analytics
+
+Users/Roles
+
+Employee	(create	own),	HR	Manager/Admin	(correct	any	record)
+
+
+=== PAGE 6 ===
+
+ Main	Features
+
+Check-in/out,	auto	worked-hours	calc,	status	(Present/Late/Absent),	authorized	manual	correction
+
+Input
+
+Check-in	/	check-out	timestamp
+
+Output
+
+Worked	hours,	overtime,	status
+
+Workflow
+
+Employee	checks	in	ΓåÆ	checks	out	ΓåÆ	system	computes	worked	hours	&	status	ΓåÆ	HR	can	edit	exceptions
+
+UI	Screens
+
+Attendance	List	(global	&	per-employee),	Attendance	Form,	Quick	check-in/out	widget	(P2)
+
+Required	Data
+
+Attendance:	employeeId,	checkIn,	checkOut,	workedHours,	overtime,	status,	isManuallyEdited
+
+API
+
+GET/POST/PUT	/api/attendance,	POST	/api/attendance/check-in,	PUT	/api/attendance/check-out
+
+M6	ΓÇö	Time	Off	(Types,	Allocations,	Requests)	
+
+P0
+
+Purpose
+
+Manage	leave	policy,	balances,	and	approval	lifecycle
+
+Users/Roles
+
+Employee	(create	request),	HR	Manager	(approve/refuse,	configure	types	&	allocations),	Admin
+
+Main
+
+Features
+
+Time	Off	Types	(unit,	allocation	requirement,	approver);	Allocations	(Allocated/Taken/Remaining);	Requests	(Approve/Refuse)	with	automatic
+
+balance	deduction
+
+Input
+
+Type	config;	allocation	grants;	request	dates/type/reason
+
+Output
+
+Approved/Refused	request;	updated	Allocation.remaining
+
+Workflow
+
+Type	defines	rules	ΓåÆ	Allocation	grants	balance	(needs	approval)	ΓåÆ	Employee	requests	leave	ΓåÆ	HR	approves/refuses	ΓåÆ	approval	reduces	linked
+
+Allocation.remaining
+
+UI	Screens
+
+Time	Off	Types	List/Form,	Allocations	List/Form,	Requests	List/Form
+
+Required
+
+Data
+
+TimeOffType:	name,	unit,	requiresAllocation,	approverLevel.	Allocation:	employeeId,	typeId,	allocated,	taken,	remaining,	status.	Request:
+
+employeeId,	typeId,	startDate,	endDate,	duration,	status,	allocationId
+
+API
+
+CRUD	/api/timeoff-types,	/api/allocations,	/api/timeoff-requests,	PUT	/api/timeoff-requests/:id/approve,	PUT	/api/timeoff-requests/:id/refuse
+
+M7	ΓÇö	Salary	Structures	&	Salary	Rules	
+
+P0
+
+Purpose
+
+Configurable	computation	engine	that	actually	drives	payslips
+
+Users/Roles
+
+HR	Payroll	Manager	(full	CRUD),	HR	Payroll	User	(read-only),	Admin
+
+Main
+
+Features
+
+Structures	as	ordered	rule	containers;	Rules	with	category	(Basic/Allowance/Gross/Deduction/Net),	sequence,	computation	method	(Fixed	/
+
+Percentage-of-base	/	Formula)
+
+Input
+
+Rule	name,	code,	category,	sequence,	computation	type	&	value/expression
+
+Output
+
+Ordered	rule	list	used	by	the	Payslip	computation	engine
+
+Workflow
+
+Define	Structure	ΓåÆ	attach	Rules	in	sequence	ΓåÆ	Payrun	selects	Structure	ΓåÆ	engine	evaluates	rules	in	sequence	order
+
+UI	Screens
+
+Structures	List/Form,	Rules	List/Form
+
+Required
+
+Data
+
+SalaryStructure:	name,	active.	SalaryRule:	structureId,	name,	code,	category,	sequence,	computationType,	value/percentageBase/formula
+
+API
+
+CRUD	/api/salary-structures,	/api/salary-rules
+
+M8	ΓÇö	Payrun	&	Payslip	Processing	
+
+P0	(core	demo)
+
+Purpose
+
+Turn	eligible	employees	into	computed,	validated,	paid	payslips
+
+Users/Roles
+
+HR	Payroll	User	(create/compute/read/update),	HR	Payroll	Manager	(full	control	incl.	Mark	Paid)
+
+Main
+
+Features
+
+Two-step	wizard	(scope	ΓåÆ	employee	selection);	Compute/Validate/Mark	Paid/Send	Payslips	actions;	warning	surfacing;	rule-by-rule	payslip
+
+breakdown;	PDF	export;	bulk	email	(simulated)
+
+Input
+
+Salary	Structure,	Period,	selected	employees
+
+Output
+
+Payrun	with	N	Payslips,	each	with	computed	lines	and	Net	Salary
+
+Workflow
+
+Step	1	scope	ΓåÆ	Step	2	select	employees	ΓåÆ	Create	Payrun	(Draft)	ΓåÆ	Compute	(runs	rule	engine	per	employee	using	their	applicable	Contract)	ΓåÆ
+
+surfaces	warnings	ΓåÆ	Validate	ΓåÆ	Mark	Paid	ΓåÆ	Send	Payslips
+
+UI	Screens
+
+Payruns	List,	Payrun	Wizard	(2	steps),	Payrun	Processing	screen,	Payslips	List,	Payslip	Detail
+
+Required
+
+Data
+
+Payrun:	name,	structureId,	periodStart,	periodEnd,	status,	employeeIds[].	Payslip:	payrunId,	employeeId,	contractId,	workedDays,	lines[],	gross,
+
+net,	status,	warnings[]
+
+API
+
+POST	/api/payruns,	GET	/api/payruns,	PUT	/api/payruns/:id/compute,	PUT	/api/payruns/:id/validate,	PUT	/api/payruns/:id/mark-paid,	POST
+
+/api/payruns/:id/send-payslips,	GET	/api/payslips/:id/pdf
+
+M9	ΓÇö	Payroll	Dashboard	
+
+P0	(core	demo)
+
+Purpose
+
+Live,	filterable	aggregation	across	all	HR/Payroll	data
+
+Users/Roles
+
+HR	Payroll	User/Manager,	Admin	(view);	HR	Manager	(HR-only	subset,	P2)
+
+Main
+
+Features
+
+KPI	cards,	Salary	Cost	by	Department	chart,	Monthly	Net	Salary	Trend	chart,	Payroll	Alerts,	Attendance	Overview,	Time	Off	Overview,
+
+Department	Overview	ΓÇö	all	filterable	by	Period/Department/Employee	Type
+
+
+=== PAGE 7 ===
+
+ Input
+
+Filter	selections
+
+Output
+
+Aggregated	read-only	metrics	computed	from	live	DB	records
+
+Workflow
+
+Backend	aggregation	endpoint	queries	Employees/Contracts/Attendance/TimeOff/Payslips	ΓåÆ	returns	computed	JSON	ΓåÆ	frontend	renders
+
+cards/charts
+
+UI	Screens
+
+Payroll	Dashboard	(single	scrollable	page	with	filter	bar)
+
+Required
+
+Data
+
+Derived	only	ΓÇö	no	new	collections;	reads	across	Employee,	Contract,	Attendance,	TimeOffRequest,	Allocation,	Payslip
+
+API
+
+GET	/api/dashboard?period=&department=&employeeType=
+
+
+=== PAGE 8 ===
+
+ 6.	Feature	Prioritization	(16-Hour	Reality	Check)
+
+P0	ΓÇö	MUST	HAVE
+
+Auth	with	5	seeded	demo	users	(one	per	role)	and	role-based	route/menu	guarding
+
+Employee	List/Kanban	+	Employee	Form	with	related-record	smart	buttons
+
+Contract	CRUD	with	active-contract	validation	(one	Running	contract	per	employee	per	period)
+
+Attendance	list	+	manual	entry/correction	(skip	live	check-in/out	widget)
+
+Time	Off	Types,	Allocations,	Requests	with	Approve/Refuse	and	automatic	balance	deduction
+
+Salary	Structures	+	Salary	Rules	(Fixed	and	Percentage-of-base	computation	types	only)
+
+Payrun	2-step	wizard	ΓåÆ	Compute	ΓåÆ	Validate	ΓåÆ	Mark	Paid,	with	warning	detection	(missing	bank	info,	duplicate	payslip)
+
+Payslip	detail	screen	with	rule-by-rule	breakdown
+
+Payslip	PDF	generation	(single	employee)
+
+Payroll	Dashboard	with	live	KPI	cards	+	at	least	2	charts,	driven	by	real	DB	queries
+
+Realistic	seed/demo	data	(employees,	contracts,	attendance,	leave,	one	computed	payrun)
+
+P1	ΓÇö	SHOULD	HAVE
+
+Working	Schedule	module	(can	hardcode	"40	hrs/week"	as	default	if	time-constrained)
+
+Formula-based	(Python-like	expression)	salary	rule	computation	ΓÇö	implement	a	small	safe-expression	evaluator
+
+Send	Payslips	bulk-email	action	(can	be	simulated	/	logged	rather	than	real	SMTP)
+
+Attendance	quick	check-in/out	widget	with	elapsed	timer
+
+Full	Attendance	Overview	+	Time	Off	Overview	+	Department	Overview	blocks	on	dashboard
+
+P2	ΓÇö	NICE	TO	HAVE
+
+Admin	User	Management	screen	(create	user,	assign	role,	link	employee)
+
+Contract	renewal	reminders	/	"contracts	expiring	this	month"	alert
+
+Toast/notification	center	for	approvals
+
+Kanban	drag-and-drop	status	changes	for	Employees
+
+P3	ΓÇö	DO	NOT	BUILD
+
+Real	SMTP-based	bulk	payslip	email	delivery	ΓÇö	simulate	instead;	not	worth	the	setup	time	or	judging	value
+
+SSO	/	password	reset	/	email	verification	flows
+
+Multi-company	/	multi-currency	support
+
+Full	audit-log	/	field-level	history	tracking
+
+Arbitrary	Python	code	execution	for	salary	rules	(security	risk	+	time	sink)	ΓÇö	use	a	constrained	formula	mini-language	instead
+
+Mobile	app	/	offline	attendance	sync
+
+
+=== PAGE 9 ===
+
+ 7.	Final	16-Hour	Prototype	Scope
+
+The	prototype	demonstrates	one	connected	story:	
+
+an	employee's	daily	HR	activity	(attendance,	leave)	combines	with	their
+
+contract	to	produce	an	accurate,	validated	payslip,	visible	in	real	time	on	a	dashboard.
+
+	Everything	else	is	supporting
+
+scaffolding.
+
+8.	Core	Demo	Flow
+
+Login	(as	HR	Payroll	Manager)
+
+		ΓåÆ	Dashboard	(show	current	live	KPIs)
+
+		ΓåÆ	Employees	ΓåÆ	open	"Aarav	Mehta"	ΓåÆ	show	Contracts	/	Attendance	/	Time	Off	smart	buttons
+
+		ΓåÆ	Contracts	ΓåÆ	show	Running	contract	with	wage	+	structure
+
+		ΓåÆ	Time	Off	ΓåÆ	Requests	ΓåÆ	approve	a	pending	request	ΓåÆ	show	Allocation	"Remaining"	drop
+
+		ΓåÆ	Payroll	ΓåÆ	Salary	Structures	ΓåÆ	show	"Regular	Salary"	with	sequenced	rules
+
+		ΓåÆ	Payruns	ΓåÆ	New	ΓåÆ	Step	1	(structure	+	period)	ΓåÆ	Continue	ΓåÆ	Step	2	(select	employees)
+
+					ΓåÆ	Create	Payrun
+
+		ΓåÆ	Payrun	screen	ΓåÆ	Compute	ΓåÆ	show	warnings	(missing	bank	info)	ΓåÆ	Validate	ΓåÆ	Mark	Paid
+
+		ΓåÆ	Open	a	Payslip	ΓåÆ	show	rule-by-rule	breakdown	ΓåÆ	Print	Payslip	(PDF	downloads)
+
+		ΓåÆ	Back	to	Dashboard	ΓåÆ	filters	change	ΓåÆ	Net	Salary	Paid	/	charts	update	live
+
+Screens	required:
+
+	Login,	Dashboard,	Employee	List/Form,	Contract	List/Form,	Attendance	List,	Time	Off	Requests/Allocations/Types,
+
+Salary	Structures/Rules,	Payrun	Wizard	+	Processing,	Payslip	Detail.
+
+APIs	required:
+
+	auth,	employees,	contracts,	attendance,	timeoff-types/allocations/requests,	salary-structures/rules,	payruns
+
+(+compute/validate/mark-paid),	payslips	(+pdf),	dashboard.
+
+DB	collections:
+
+	users,	employees,	departments,	contracts,	workingSchedules,	attendance,	timeOffTypes,	allocations,	timeOffRequests,
+
+salaryStructures,	salaryRules,	payruns,	payslips.
+
+Status	transitions:
+
+	Contract:	DraftΓåÆRunningΓåÆExpired.	TimeOffRequest:	DraftΓåÆToApproveΓåÆApproved/Refused.	Payrun/Payslip:
+
+DraftΓåÆComputedΓåÆValidatedΓåÆPaid.
+
+Demo/mock	data	required:
+
+	~10-15	employees	across	3-4	departments,	2	contracts	per	employee	(1	expired,	1	running),	2	weeks	of
+
+attendance,	a	mix	of	leave	requests/allocations,	one	fully	processed	Payrun	with	an	intentional	warning	(missing	bank	detail)	to	show	off
+
+warning	detection.
+
+Real	vs.	Demo/Mock	Functionality
+
+Capability
+
+Treatment
+
+Contract	ΓåÆ	payroll	period	selection
+
+REAL	ΓÇö	actual	date-range	logic
+
+Salary	rule	sequencing	&	computation	(fixed	+	percentage)
+
+REAL	ΓÇö	actual	engine
+
+Leave	balance	deduction	on	approval
+
+REAL
+
+Payroll	warning	detection	(missing	bank	info,	duplicates)
+
+REAL	ΓÇö	simple	rule	checks
+
+Dashboard	aggregation
+
+REAL	ΓÇö	live	MongoDB	aggregation	queries
+
+Payslip	PDF	generation
+
+REAL
+
+Bulk	email	"Send	Payslips"
+
+DEMO	ΓÇö	button	triggers	a	success	toast	+	status	change;	no	real	SMTP
+
+Formula-based	salary	rules	(advanced)
+
+DEMO/SIMPLIFIED	ΓÇö	small	safe-expression	evaluator,	not	full	Python
+
+Attendance	live	check-in	widget	with	timer
+
+DEMO	ΓÇö	simplified	button,	skip	live	ticking	timer	if	short	on	time
+
+User	Management	(Admin)
+
+DEMO	ΓÇö	seeded	users	only,	no	self-service	UI	unless	time	remains
+
+
+=== PAGE 10 ===
+
+ 9.	Application	Architecture	(MERN)
+
+Frontend	(React)
+
+Pages:	Login, 	Dashboard, 	Employees	(List/Kanban/Form), 	Contracts	(List/Form),
+
+		Attendance	(List/Form), 	TimeOff	(Types/Allocations/Requests), 	Payroll
+
+		(Structures/Rules/Payruns/Payslips)
+
+Components:	Sidebar	Nav, 	Topbar, 	DataTable, 	StatusBadge, 	KpiCard, 	ChartCard,
+
+		Modal/Wizard, 	Form	fields, 	ConfirmDialog, 	Toast
+
+State:	React	Context	(auth/user)	+	useState/useReducer	per	page;
+
+		React	Query	(or	simple	fetch+useEffect)	for	server	data	caching
+
+API	layer:	/src/api/*.js	ΓÇö	one	file	per	resource, 	axios	instance	with	JWT
+
+		interceptor
+
+Backend	(Node.js	+	Express)
+
+Routes		ΓåÆ	/routes/*.routes.js			(one	per	resource)
+
+Controllers	ΓåÆ	/controllers/*.controller.js		(request	handling, 	validation)
+
+Services	ΓåÆ	/services/payrollEngine.service.js	(rule	computation),
+
+												/services/dashboard.service.js	(aggregation)	ΓÇö	only	where	logic
+
+												is	non-trivial;	simple	CRUD	skips	the	service	layer
+
+Models		ΓåÆ	/models/*.model.js	(Mongoose	schemas)
+
+Middleware	ΓåÆ	auth.middleware.js	(JWT	verify), 	role.middleware.js	(RBAC)
+
+Database
+
+MongoDB	via	Mongoose.	See	Section	10	for	full	schema.
+
+10.	Database	Design	(MongoDB	/	Mongoose)
+
+Collection
+
+Key	Fields
+
+Relationships	/	Notes
+
+users
+
+email,	passwordHash,	role	(enum),	employeeId	(ref)
+
+1:1	Employee
+
+departments
+
+name
+
+1:N	employees
+
+employees
+
+name,	email,	phone,	departmentId,	managerId	(ref	employees),	jobPosition,	workingScheduleId,
+
+status,	workLocation
+
+self-ref	manager;	ref	department,
+
+workingSchedule
+
+workingSchedules
+
+name,	days:[{day,start,end,break}],	weeklyHours,	status
+
+referenced	by	employees/contracts
+
+contracts
+
+employeeId,	startDate,	endDate,	wage,	status(Draft/Running/Expired),	departmentId,	jobPosition,
+
+salaryStructureId,	workingScheduleId
+
+index	on	(employeeId,	status)	to
+
+enforce	single	Running	contract
+
+attendance
+
+employeeId,	date,	checkIn,	checkOut,	workedHours,	overtime,	status(Present/Late/Absent),
+
+isManuallyEdited
+
+index	on	(employeeId,	date)
+
+timeOffTypes
+
+name,	unit(Days/Hours),	requiresAllocation(bool),	approverLevel
+
+referenced	by	allocations/requests
+
+allocations
+
+employeeId,	typeId,	allocated,	taken,	remaining,	status,	validity
+
+N:1	employee,	N:1	type
+
+timeOffRequests
+
+employeeId,	typeId,	startDate,	endDate,	duration,	status(Draft/ToApprove/Approved/Refused),
+
+allocationId,	reason,	approverId
+
+on	Approve:	decrement	linked
+
+allocation.remaining
+
+salaryStructures
+
+name,	active
+
+1:N	salaryRules
+
+salaryRules
+
+structureId,	name,	code,	category(Basic/Allowance/Gross/Deduction/Net),	sequence,
+
+computationType(Fixed/Percentage/Formula),	value,	percentageBase,	formula
+
+ordered	by	sequence	within	structure
+
+payruns
+
+name,	salaryStructureId,	periodStart,	periodEnd,	status(Draft/Computed/Validated/Paid),
+
+employeeIds:[ref]
+
+1:N	payslips
+
+payslips
+
+payrunId,	employeeId,	contractId,	workedDays,	lines:[{ruleId,name,code,category,amount}],
+
+gross,	net,	status,	warnings:[string]
+
+N:1	payrun,	N:1	employee,	N:1
+
+contract
+
+11.	API	Design	(Key	REST	Endpoints)
+
+POST			/api/auth/login
+
+GET				/api/auth/me
+
+GET				/api/employees																GET	/api/employees/:id
+
+POST			/api/employees																PUT	/api/employees/:id
+
+GET				/api/employees/:id/contracts
+
+GET				/api/contracts																POST	/api/contracts
+
+PUT				/api/contracts/:id
+
+GET				/api/schedules																POST	/api/schedules
+
+
+=== PAGE 11 ===
+
+ GET				/api/attendance															POST	/api/attendance
+
+PUT				/api/attendance/:id
+
+GET				/api/timeoff-types												POST	/api/timeoff-types
+
+GET				/api/allocations														POST	/api/allocations
+
+GET				/api/timeoff-requests									POST	/api/timeoff-requests
+
+PUT				/api/timeoff-requests/:id/approve
+
+PUT				/api/timeoff-requests/:id/refuse
+
+GET				/api/salary-structures								POST	/api/salary-structures
+
+GET				/api/salary-rules													POST	/api/salary-rules
+
+POST			/api/payruns																										(Step	2	ΓÇö	creates	record)
+
+GET				/api/payruns																		GET	/api/payruns/:id
+
+PUT				/api/payruns/:id/compute
+
+PUT				/api/payruns/:id/validate
+
+PUT				/api/payruns/:id/mark-paid
+
+POST			/api/payruns/:id/send-payslips
+
+GET				/api/payslips																	GET	/api/payslips/:id
+
+GET				/api/payslips/:id/pdf
+
+GET				/api/dashboard?period=&department=&employeeType=
+

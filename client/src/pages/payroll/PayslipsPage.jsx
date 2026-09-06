@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
+import { evaluateSalaryRules } from '../../utils/salaryCalculator';
 import { downloadPayslipPDF } from '../../utils/pdfGenerator';
 import {
   Search,
@@ -9,147 +11,181 @@ import {
   CheckCircle,
   AlertTriangle,
   Shield,
-  FileText
+  FileText,
+  Filter,
+  RefreshCw
 } from 'lucide-react';
 
-const ALL_PAYSLIPS = [
-  {
-    id: 'ps-rohan-1',
-    employeeName: 'Rohan Patel',
-    warning: '—',
-    payrunName: 'February 2026',
-    period: '01-Feb — 28-Feb 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-rohan-2',
-    employeeName: 'Rohan Patel',
-    warning: '—',
-    payrunName: 'January 2026',
-    period: '01-Jan — 31-Jan 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund (12%)', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-1',
-    employeeName: 'Aarav Mehta',
-    warning: '—',
-    payrunName: 'February 2026',
-    period: '01-Feb — 28-Feb 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹50,000',
-    gross: '₹80,000',
-    net: '₹75,000',
-    jobPosition: 'Payroll Specialist',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹50,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹20,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹10,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹80,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹2,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹75,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-2',
-    employeeName: 'Sara Khan',
-    warning: 'A/C missing',
-    payrunName: 'February 2026',
-    period: '01-Feb — 28-Feb 2026',
-    structure: 'Regular Salary',
-    status: 'Paid',
-    workedDays: 22,
-    basic: '₹60,000',
-    gross: '₹95,000',
-    net: '₹88,000',
-    jobPosition: 'HR Officer',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹60,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹24,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹11,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹95,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,500', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,500', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹88,000', code: 'NET' }
-    ]
-  },
-  {
-    id: 'ps-3',
-    employeeName: 'John Dsouza',
-    warning: 'Duplicate',
-    payrunName: 'February 2026',
-    period: '01-Feb — 28-Feb 2026',
-    structure: 'Regular Salary',
-    status: 'Draft',
-    workedDays: 21,
-    basic: '₹45,000',
-    gross: '₹72,000',
-    net: '₹66,000',
-    jobPosition: 'Developer',
-    lines: [
-      { rule: 'Basic Salary', category: 'Basic', amount: '₹45,000', code: 'BASIC' },
-      { rule: 'House Rent Allowance', category: 'Allowance', amount: '₹18,000', code: 'HRA' },
-      { rule: 'Standard Allowance', category: 'Allowance', amount: '₹9,000', code: 'STD' },
-      { rule: 'Gross Salary', category: 'Gross', amount: '₹72,000', code: 'GROSS' },
-      { rule: 'Provident Fund', category: 'Deduction', amount: '-₹3,000', code: 'PF' },
-      { rule: 'Professional Tax', category: 'Deduction', amount: '-₹3,000', code: 'PT' },
-      { rule: 'Net Salary', category: 'Net', amount: '₹66,000', code: 'NET' }
-    ]
-  }
-];
+function aggregatePayslips(payruns, employees, structures) {
+  const empMap = new Map(employees.map(e => [e.id, e]));
+  const structMap = new Map(structures.map(s => [s.name, s]));
+  const all = [];
+
+  payruns.forEach(payrun => {
+    (payrun.payslips || []).forEach(p => {
+      const emp = empMap.get(p.employeeId);
+      const basicNum = typeof p.basic === 'number' ? p.basic : parseInt(String(p.basic || '0').replace(/[^0-9]/g, ''), 10) || 45000;
+      const grossNum = typeof p.gross === 'number' ? p.gross : parseInt(String(p.gross || '0').replace(/[^0-9]/g, ''), 10) || Math.round(basicNum * 1.6);
+      const netNum = typeof p.net === 'number' ? p.net : parseInt(String(p.net || '0').replace(/[^0-9]/g, ''), 10) || Math.round(grossNum * 0.9);
+
+      let lines = p.lines;
+      if (!lines || lines.length === 0) {
+        const struct = structMap.get(p.structure || payrun.structure);
+        if (struct && struct.rules && struct.rules.length > 0) {
+          const evalRes = evaluateSalaryRules(p.contractWage || basicNum, struct.rules, p.workedDays || 22, 22);
+          lines = evalRes.lines.map(l => ({
+            rule: l.ruleName || l.code,
+            category: l.category,
+            amount: l.formattedAmount,
+            code: l.code
+          }));
+        } else {
+          const hra = Math.round(basicNum * 0.4);
+          const std = Math.max(0, grossNum - basicNum - hra);
+          const pf = Math.round(basicNum * 0.12);
+          const pt = Math.max(0, grossNum - netNum - pf);
+          lines = [
+            { rule: 'Basic Salary', category: 'Basic', amount: `₹${basicNum.toLocaleString('en-IN')}`, code: 'BASIC' },
+            { rule: 'House Rent Allowance (40%)', category: 'Allowance', amount: `₹${hra.toLocaleString('en-IN')}`, code: 'HRA' },
+            { rule: 'Standard Allowance', category: 'Allowance', amount: `₹${std.toLocaleString('en-IN')}`, code: 'STD' },
+            { rule: 'Gross Salary', category: 'Gross', amount: `₹${grossNum.toLocaleString('en-IN')}`, code: 'GROSS' },
+            { rule: 'Provident Fund (12%)', category: 'Deduction', amount: `-₹${pf.toLocaleString('en-IN')}`, code: 'PF' },
+            { rule: 'Professional Tax', category: 'Deduction', amount: `-₹${pt.toLocaleString('en-IN')}`, code: 'PT' },
+            { rule: 'Net Salary', category: 'Net', amount: `₹${netNum.toLocaleString('en-IN')}`, code: 'NET' }
+          ];
+        }
+      } else {
+        lines = lines.map(l => ({
+          rule: l.rule || l.ruleName || l.code,
+          category: l.category,
+          amount: typeof l.amount === 'number'
+            ? `${l.category === 'Deduction' ? '-' : ''}₹${Math.abs(l.amount).toLocaleString('en-IN')}`
+            : l.amount,
+          code: l.code
+        }));
+      }
+
+      all.push({
+        id: p.id,
+        payrunId: payrun.id,
+        payrunName: payrun.name,
+        period: p.period || (payrun.periodStart && payrun.periodEnd ? `${payrun.periodStart} — ${payrun.periodEnd}` : payrun.name),
+        periodStart: payrun.periodStart,
+        periodEnd: payrun.periodEnd,
+        structure: p.structure || payrun.structure || 'Regular Salary',
+        employeeId: p.employeeId,
+        employeeName: p.employeeName || emp?.name || 'Employee',
+        department: p.department || emp?.department || 'Operations',
+        jobPosition: emp?.jobTitle || p.jobPosition || 'Employee Specialist',
+        workedDays: p.workedDays || 22,
+        status: p.status || payrun.status || 'Paid',
+        warning: p.warning || '—',
+        basic: `₹${basicNum.toLocaleString('en-IN')}`,
+        gross: `₹${grossNum.toLocaleString('en-IN')}`,
+        net: `₹${netNum.toLocaleString('en-IN')}`,
+        basicNum,
+        grossNum,
+        netNum,
+        lines
+      });
+    });
+  });
+
+  return all;
+}
 
 export default function PayslipsPage() {
   const { user, isEmployeeSelf, canAccessPayroll } = useAuth();
   const userName = user?.name || 'Rohan Patel';
 
-  const [payslips, setPayslips] = useState(ALL_PAYSLIPS);
+  const [payruns, setPayruns] = useState(() => store.getPayruns());
+  const [employees, setEmployees] = useState(() => store.getEmployees());
+  const [structures, setStructures] = useState(() => store.getSalaryStructures());
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedPayslip, setSelectedPayslip] = useState(null);
 
-  // Strictly filter list:
-  // If role is employee, ONLY show current user's payslips!
-  const baseList = isEmployeeSelf
-    ? payslips.filter(p => p.employeeName.toLowerCase() === userName.toLowerCase())
-    : payslips;
+  useEffect(() => {
+    const unsub = store.subscribe(() => {
+      setPayruns([...store.getPayruns()]);
+      setEmployees([...store.getEmployees()]);
+      setStructures([...store.getSalaryStructures()]);
+    });
+    return unsub;
+  }, []);
 
-  const filtered = baseList.filter(p =>
-    p.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.payrunName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const allPayslips = useMemo(() => {
+    return aggregatePayslips(payruns, employees, structures);
+  }, [payruns, employees, structures]);
 
-  // Form View (Screenshot 6)
+  // Keep selected payslip up to date if store updates
+  useEffect(() => {
+    if (selectedPayslip) {
+      const fresh = allPayslips.find(p => p.id === selectedPayslip.id);
+      if (fresh) {
+        setSelectedPayslip(fresh);
+      }
+    }
+  }, [allPayslips]);
+
+  // If role is employee, ONLY show current user's payslips
+  const baseList = useMemo(() => {
+    if (isEmployeeSelf) {
+      return allPayslips.filter(p => {
+        const matchId = user?.employeeId && p.employeeId === user.employeeId;
+        const matchName = p.employeeName && userName && p.employeeName.toLowerCase().trim() === userName.toLowerCase().trim();
+        return matchId || matchName;
+      });
+    }
+    return allPayslips;
+  }, [isEmployeeSelf, allPayslips, user, userName]);
+
+  const departments = useMemo(() => {
+    const set = new Set(allPayslips.map(p => p.department).filter(Boolean));
+    return ['ALL', ...Array.from(set).sort()];
+  }, [allPayslips]);
+
+  const filtered = useMemo(() => {
+    return baseList.filter(p => {
+      const matchSearch =
+        p.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.payrunName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.period.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchDept = departmentFilter === 'ALL' || p.department === departmentFilter;
+      const matchStatus = statusFilter === 'ALL' || p.status.toLowerCase() === statusFilter.toLowerCase();
+
+      return matchSearch && matchDept && matchStatus;
+    });
+  }, [baseList, searchTerm, departmentFilter, statusFilter]);
+
+  const handleMarkPaid = (payslip) => {
+    const allPrs = store.getPayruns();
+    const targetPr = allPrs.find(pr => pr.id === payslip.payrunId);
+    if (targetPr && targetPr.payslips) {
+      const slipIdx = targetPr.payslips.findIndex(s => s.id === payslip.id);
+      if (slipIdx >= 0) {
+        targetPr.payslips[slipIdx].status = 'Paid';
+        store.savePayrun(targetPr);
+      }
+    }
+  };
+
+  const handleCompute = (payslip) => {
+    const allPrs = store.getPayruns();
+    const targetPr = allPrs.find(pr => pr.id === payslip.payrunId);
+    if (targetPr && targetPr.payslips) {
+      const slipIdx = targetPr.payslips.findIndex(s => s.id === payslip.id);
+      if (slipIdx >= 0) {
+        targetPr.payslips[slipIdx].status = 'Computed';
+        store.savePayrun(targetPr);
+      }
+    }
+  };
+
+  // Form View
   if (selectedPayslip) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -171,7 +207,6 @@ export default function PayslipsPage() {
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
-            {/* Real PDF Download Action */}
             <button
               type="button"
               className="btn-action-primary"
@@ -193,18 +228,32 @@ export default function PayslipsPage() {
           </div>
         </div>
 
-        {/* Action Bar (Only for Payroll managers) */}
+        {/* Action Bar (Only for Payroll managers & users) */}
         {canAccessPayroll && (
           <div className="action-buttons-bar">
-            <button type="button" className="btn-status-action primary-flow">
-              COMPUTE
-            </button>
-            <button type="button" className="btn-status-action">
-              MARK PAID
-            </button>
+            {selectedPayslip.status !== 'Paid' && (
+              <>
+                <button
+                  type="button"
+                  className="btn-status-action primary-flow"
+                  onClick={() => handleCompute(selectedPayslip)}
+                >
+                  COMPUTE
+                </button>
+                <button
+                  type="button"
+                  className="btn-status-action"
+                  onClick={() => handleMarkPaid(selectedPayslip)}
+                >
+                  MARK PAID
+                </button>
+              </>
+            )}
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Status:</span>
-              <span className="status-pill active">● {selectedPayslip.status}</span>
+              <span className={`status-pill ${selectedPayslip.status === 'Paid' ? 'active' : 'draft'}`}>
+                ● {selectedPayslip.status}
+              </span>
             </div>
           </div>
         )}
@@ -223,6 +272,16 @@ export default function PayslipsPage() {
             </div>
 
             <div className="field-group">
+              <label className="field-label">Department</label>
+              <input className="field-input" value={selectedPayslip.department} readOnly />
+            </div>
+
+            <div className="field-group">
+              <label className="field-label">Designation</label>
+              <input className="field-input" value={selectedPayslip.jobPosition} readOnly />
+            </div>
+
+            <div className="field-group">
               <label className="field-label">Salary Structure</label>
               <input className="field-input" value={selectedPayslip.structure} readOnly />
             </div>
@@ -230,7 +289,9 @@ export default function PayslipsPage() {
             <div className="field-group">
               <label className="field-label">Status</label>
               <div>
-                <span className="status-pill active">● {selectedPayslip.status}</span>
+                <span className={`status-pill ${selectedPayslip.status === 'Paid' ? 'active' : 'draft'}`}>
+                  ● {selectedPayslip.status}
+                </span>
               </div>
             </div>
 
@@ -246,7 +307,7 @@ export default function PayslipsPage() {
           </div>
         </div>
 
-        {/* Salary Computation Breakdown Table (Screenshot 6) */}
+        {/* Salary Computation Breakdown Table */}
         <div style={{ marginTop: '8px' }}>
           <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
@@ -340,7 +401,7 @@ export default function PayslipsPage() {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
             {isEmployeeSelf
               ? `Personal salary disbursal records for ${userName}. Click Download PDF on any payslip.`
-              : 'List view of employee payslips with rule breakdowns and PDF printing'
+              : `List view of ${filtered.length} employee payslips with rule breakdowns and PDF printing`
             }
           </p>
         </div>
@@ -357,18 +418,50 @@ export default function PayslipsPage() {
         )}
       </div>
 
-      <div className="odoo-control-bar">
-        <div className="control-bar-left">
-          <div className="search-input-box">
+      <div className="odoo-control-bar" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="control-bar-left" style={{ flex: '1 1 280px' }}>
+          <div className="search-input-box" style={{ width: '100%' }}>
             <Search size={16} />
             <input
               type="text"
-              placeholder="Search by period or batch..."
+              placeholder="Search by employee, period or batch..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
+
+        {!isEmployeeSelf && (
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Filter size={14} style={{ color: 'var(--text-muted)' }} />
+              <select
+                className="field-input"
+                style={{ padding: '6px 10px', fontSize: '0.82rem', width: 'auto' }}
+                value={departmentFilter}
+                onChange={(e) => setDepartmentFilter(e.target.value)}
+              >
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept === 'ALL' ? 'All Departments' : dept}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <select
+              className="field-input"
+              style={{ padding: '6px 10px', fontSize: '0.82rem', width: 'auto' }}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="Paid">Paid</option>
+              <option value="Computed">Computed</option>
+              <option value="Draft">Draft</option>
+            </select>
+          </div>
+        )}
 
         {isEmployeeSelf && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
@@ -383,6 +476,7 @@ export default function PayslipsPage() {
           <thead>
             <tr>
               <th>Employee</th>
+              <th>Department</th>
               <th>Warning</th>
               <th>Period</th>
               <th>Basic</th>
@@ -402,6 +496,7 @@ export default function PayslipsPage() {
                   onClick={() => setSelectedPayslip(p)}
                 >
                   <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{p.employeeName}</td>
+                  <td style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{p.department}</td>
                   <td>
                     {p.warning !== '—' ? (
                       <span className="status-pill draft" style={{ fontSize: '0.72rem' }}>
@@ -447,8 +542,8 @@ export default function PayslipsPage() {
               ))
             ) : (
               <tr>
-                <td colSpan={9} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
-                  No payslips found for your account.
+                <td colSpan={10} style={{ textAlign: 'center', padding: '36px', color: 'var(--text-muted)' }}>
+                  No payslips found matching your filters.
                 </td>
               </tr>
             )}

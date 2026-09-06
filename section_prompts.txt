@@ -1,0 +1,729 @@
+=== PAGE 12 ===
+
+ 12.	UI	Screens
+
+Screen
+
+Role
+
+Key	Elements
+
+Priority
+
+Login
+
+All
+
+Email/password	form,	error	state
+
+P0
+
+Dashboard
+
+Payroll	roles,	Admin
+
+Filter	bar,	5	KPI	cards,	2	charts,	alerts	list,	tables
+
+P0
+
+Employee	List	/	Kanban
+
+HR,	Payroll,	Admin
+
+Search,	status	filter,	avatar	cards,	NEW	button
+
+P0
+
+Employee	Form
+
+HR,	Payroll,	Admin,	self
+
+Profile	fields,	smart-button	counts,	tabs	(Work/Private)
+
+P0
+
+Contracts	List	/	Form
+
+HR,	Admin
+
+Status	badges	(Running	highlighted),	wage,	dates
+
+P0
+
+Working	Schedule	List	/	Form
+
+HR,	Admin
+
+Weekly	grid,	auto-computed	hours
+
+P1
+
+Attendance	List	/	Form
+
+HR,	Admin,	self
+
+Check-in/out	columns,	status	badges,	correction	form
+
+P0
+
+Time	Off	Types	/	Allocations	/
+
+Requests
+
+HR,	Admin,	self	(requests)
+
+Approve/Refuse	buttons,	balance	columns
+
+P0
+
+Salary	Structures	/	Rules
+
+Payroll	Manager	(edit),	Payroll	User
+
+(view)
+
+Sequence	table,	computation	type	selector
+
+P0
+
+Payrun	Wizard	(2-step)
+
+Payroll	User/Manager
+
+Step	indicator,	structure+period	form,	employee	checklist
+
+P0
+
+Payrun	Processing
+
+Payroll	User/Manager
+
+Compute/Validate/Mark	Paid/Send	buttons,	payslip	summary	table,
+
+warning	banners
+
+P0
+
+Payslip	Detail
+
+Payroll	roles,	self	(own)
+
+Rule-by-rule	table,	Print/PDF	button
+
+P0
+
+User	Management
+
+Admin
+
+User	list,	role	assignment	form
+
+P2
+
+Common	patterns	across	all	screens:	empty	states	("No	records	yet	ΓÇö	click	NEW	to	create	one"),	error	states	(inline	banner	on	failed	fetch/save),	loading
+
+skeletons,	confirmation	dialogs	for	destructive	actions	(e.g.,	deleting	a	contract),	and	consistent	status	badge	coloring	(green=Active/Paid,	amber=Draft/Pending,
+
+red=Refused/Warning,	gray=Expired/Inactive).
+
+
+=== PAGE 13 ===
+
+ 13.	Antigravity	IDE	Prompts
+
+Ten	copy-paste-ready	prompts,	ordered	by	build	dependency.	Each	is	self-contained	context	for	the	Antigravity	IDE	agent.
+
+PROMPT	1	ΓÇö	Project	Foundation
+
+CONTEXT
+
+We	are	building	"PeoplePay360"	ΓÇö	an	integrated	HR	&	Payroll	MERN	prototype	for	a
+
+16-hour	hackathon.	This	is	the	first	prompt:	it	sets	up	the	whole	project	skeleton
+
+that	every	later	module	will	build	on.
+
+OBJECTIVE
+
+Initialize	a	MERN	monorepo	with	a	clean, 	professional	SaaS/ERP-style	shell	(sidebar
+
+nav, 	topbar, 	routing, 	theme)	but	no	business	logic	yet.
+
+USER	ROLES
+
+Employee, 	HR	Manager, 	HR	Payroll	User, 	HR	Payroll	Manager, 	Admin	(roles	are	just
+
+enum	values	for	now	ΓÇö	real	auth	comes	in	Prompt	2).
+
+FUNCTIONAL	REQUIREMENTS
+
+-	/client	(React	+	Vite)	and	/server	(Node	+	Express)	folders.
+
+-	React	Router	with	placeholder	pages:	Dashboard, 	Employees, 	Contracts, 	Attendance,
+
+		TimeOff, 	Payroll	(Structures, 	Rules, 	Payruns, 	Payslips).
+
+-	Persistent	Sidebar	with	icons	+	labels	for	each	top-level	menu	(Employees	
+
+Γû╝
+
+,
+
+		Contracts, 	Attendance, 	Time	Off	
+
+Γû╝
+
+, 	Payroll	
+
+Γû╝
+
+), 	collapsible	sub-menus	for
+
+		Time	Off	(Requests/Allocations/Types)	and	Payroll	(Payruns/Payslips/Structures/Rules).
+
+-	Topbar	with	app	name, 	current	user	avatar	placeholder, 	logout	button	(no-op	for	now).
+
+-	Global	theme:	professional	SaaS	palette	(deep	navy/teal	primary, 	neutral	grays,
+
+		one	accent	color), 	consistent	spacing	scale, 	card	+	table	base	styles.
+
+-	Express	server	with	a	health-check	route	(GET	/api/health)	and	CORS	enabled	for
+
+		the	client	origin.
+
+-	Mongoose	connection	setup	using	an	environment	variable	MONGO_URI.
+
+UI	REQUIREMENTS
+
+Clean	sidebar	navigation, 	top	navbar, 	a	reusable	PageHeader	component	(title	+
+
+primary	action	button), 	a	reusable	DataTable	shell	component, 	a	reusable	KpiCard
+
+shell	component.	No	mock	business	data	yet	ΓÇö	just	the	shell	rendering	correctly	on
+
+every	route.
+
+BACKEND	REQUIREMENTS
+
+Express	app	entry	(server.js), 	central	error-handling	middleware, 	a	/config/db.js
+
+for	the	Mongoose	connection, 	a	/routes/health.routes.js.
+
+DATABASE	REQUIREMENTS
+
+None	yet	beyond	the	connection	itself.
+
+BUSINESS	LOGIC
+
+None	yet.
+
+DEMO	DATA
+
+None	yet.
+
+EDGE	CASES
+
+Handle	Mongo	connection	failure	gracefully	with	a	clear	console	error, 	don't	crash
+
+silently.
+
+DESIGN	REQUIREMENTS
+
+Modern	SaaS/ERP	look	ΓÇö	think	a	polished	internal	ops	tool, 	not	a	generic	AI
+
+dashboard.	Clear	typographic	hierarchy, 	generous	whitespace, 	rounded	cards	with
+
+subtle	shadows, 	consistent	8px	spacing	grid.
+
+IMPLEMENTATION	RULES
+
+Inspect	the	existing	project	before	making	changes.	Keep	the	folder	structure
+
+modular	(client/src/{pages, components, api, context}, 	server/{routes, controllers,
+
+models, middleware, services}).	Do	not	add	business	logic	yet	ΓÇö	this	prompt	is
+
+scaffolding	only.	Avoid	unnecessary	dependencies.
+
+PROMPT	2	ΓÇö	Authentication	&	Role-Based	Access
+
+Prerequisite:	Prompt	1	(Project	Foundation)	complete.
+
+
+=== PAGE 14 ===
+
+ CONTEXT
+
+PeoplePay360	needs	5	distinct	roles	with	different	access	levels:	Employee, 	HR
+
+Manager, 	HR	Payroll	User, 	HR	Payroll	Manager, 	Admin.	This	prompt	adds	real
+
+authentication	and	route	protection	on	top	of	the	Prompt	1	shell.
+
+OBJECTIVE
+
+Implement	JWT-based	login, 	a	User	model	linked	to	Employee, 	role-based	route
+
+guarding	on	both	frontend	and	backend, 	and	5	seeded	demo	users	(one	per	role)	so
+
+judges	can	switch	roles	instantly	during	the	demo.
+
+USER	ROLES
+
+All	5	roles, 	as	defined	in	the	problem	statement's	Section	3	(User	Roles).
+
+FUNCTIONAL	REQUIREMENTS
+
+-	Backend:	User	model	{email, 	passwordHash, 	role, 	employeeId}.	POST	/api/auth/login
+
+		validates	credentials	and	returns	a	JWT	containing	{userId, 	role, 	employeeId}.
+
+		GET	/api/auth/me	returns	the	current	user	from	the	token.
+
+-	Middleware:	auth.middleware.js	verifies	JWT;	role.middleware.js(...allowedRoles)
+
+		restricts	a	route	to	specific	roles.
+
+-	Frontend:	Login	page	posts	to	/api/auth/login, 	stores	JWT	in	memory	+	a	React
+
+		Context	(AuthContext), 	attaches	it	via	an	axios	interceptor	to	every	request.
+
+-	ProtectedRoute	component	redirects	to	/login	if	unauthenticated, 	and	hides/
+
+		disables	sidebar	items	the	current	role	cannot	access	(e.g., 	Employee	role	never
+
+		sees	Payroll	menu;	HR	Manager	never	sees	Payruns/Structures/Rules).
+
+-	After	login, 	redirect	every	role	to	the	Dashboard	(Employee	role	sees	a	simplified
+
+		personal	view	ΓÇö	full	dashboard	logic	comes	later	in	Prompt	3).
+
+UI	REQUIREMENTS
+
+A	clean	centered	Login	card	("HR	Portal	ΓÇö	Welcome	back")	with	email/password
+
+fields	and	an	inline	error	message	on	failed	login.	Sidebar	menu	items	conditionally
+
+rendered	based	on	role.
+
+BACKEND	REQUIREMENTS
+
+POST	/api/auth/login, 	GET	/api/auth/me, 	JWT	signing	with	an	env	secret, 	bcrypt
+
+password	hashing.
+
+DATABASE	REQUIREMENTS
+
+users	collection:	email	(unique), 	passwordHash, 	role	(enum:	employee, 	hr_manager,
+
+hr_payroll_user, 	hr_payroll_manager, 	admin), 	employeeId	(ref, 	nullable	for	now).
+
+BUSINESS	LOGIC
+
+-	Only	Admin	can	(eventually)	create/edit	other	users	ΓÇö	for	this	prototype, 	just
+
+		seed	5	fixed	demo	accounts	via	a	seed	script;	a	full	user-management	UI	is
+
+		out	of	scope	(P2).
+
+-	Users	must	never	be	able	to	elevate	their	own	role	ΓÇö	since	there's	no
+
+		self-service	role	editor	yet, 	this	is	naturally	satisfied.
+
+DEMO	DATA
+
+Seed	exactly	5	users, 	one	per	role, 	e.g.:	employee@peoplepay360.com,
+
+hrmanager@peoplepay360.com, 	payrolluser@peoplepay360.com,
+
+payrollmanager@peoplepay360.com, 	admin@peoplepay360.com	ΓÇö	all	with	password
+
+"Demo@123"	for	judging	convenience.
+
+EDGE	CASES
+
+Invalid	credentials	show	a	clear	inline	error, 	not	a	console-only	failure.	Expired/
+
+missing	token	redirects	cleanly	to	/login	instead	of	crashing	the	app.
+
+DESIGN	REQUIREMENTS
+
+Login	screen	should	look	like	a	polished	enterprise	portal, 	matching	the	shell's
+
+theme	from	Prompt	1.
+
+IMPLEMENTATION	RULES
+
+Reuse	the	shell/theme	from	Prompt	1.	Do	not	rewrite	the	routing	structure	ΓÇö	extend
+
+it	with	guards.	Keep	JWT	secret	in	an	environment	variable, 	never	hardcoded.
+
+PROMPT	3	ΓÇö	Employee,	Department	&	Contract	Module	(Core	Business	Module,	Part	1)
+
+Prerequisite:	Prompt	2	(Auth	&	Roles)	complete.
+
+
+=== PAGE 15 ===
+
+ CONTEXT
+
+The	Employee	record	is	the	central	hub	of	PeoplePay360	ΓÇö	every	other	module
+
+(Contracts, 	Attendance, 	Time	Off, 	Payroll)	links	back	to	it.	This	prompt	builds
+
+Employees, 	Departments, 	and	Contracts	together	since	Contracts	cannot	exist
+
+without	Employees.
+
+OBJECTIVE
+
+Implement	full	CRUD	for	Employees	and	Contracts, 	with	the	Employee	Form	acting
+
+as	a	navigation	hub	via	smart-button	counts	to	related	records.
+
+USER	ROLES
+
+HR	Manager, 	HR	Payroll	User/Manager, 	Admin:	full	CRUD	on	Employees	&	Contracts.
+
+Employee:	read-only	access	to	their	own	record	only.
+
+FUNCTIONAL	REQUIREMENTS
+
+-	Employee	List	(table)	and	Kanban	view, 	both	opening	the	same	Employee	Form.
+
+-	Employee	Form:	identity	fields	(name, 	email, 	phone), 	Work	Information	tab
+
+		(department, 	manager, 	job	position, 	working	schedule	reference	ΓÇö	schedule
+
+		itself	can	be	a	simple	dropdown	of	hardcoded	values	until	Prompt	for	Working
+
+		Schedule	lands, 	if	built), 	status;	Private	Information	tab	(basic	placeholder
+
+		fields).	Smart	buttons	at	the	top	show	live	counts:	"Contracts	(n)",
+
+		"Attendance	(n)", 	"Time	Off	(n)"	ΓÇö	clicking	opens	that	related	list, 	pre-filtered
+
+		to	this	employee.
+
+-	Contracts	List:	shows	Contract	number, 	Employee, 	Start, 	End, 	Wage/Month,
+
+		Status	ΓÇö	the	"Running"	status	contract	is	visually	highlighted	(e.g., 	green
+
+		badge	+	bold	row).
+
+-	Contract	Form:	employee, 	start	date, 	end	date, 	wage, 	department, 	job	position,
+
+		salary	structure	(dropdown	ΓÇö	can	be	a	stubbed	list	until	Prompt	5	lands),
+
+		status	(computed, 	not	manually	set).
+
+-	Business	rule:	when	saving	a	contract	with	status	"Running", 	the	backend	must
+
+		reject	the	save	if	the	same	employee	already	has	another	"Running"	contract
+
+		whose	date	range	overlaps	the	new	one	ΓÇö	return	a	clear	validation	error.
+
+UI	REQUIREMENTS
+
+List	+	Kanban	toggle	for	Employees.	Filtered	"related	record"	list	views	reachable
+
+only	via	smart	buttons	(no	separate	top-level	page	needed	for	"employee's
+
+contracts", 	it's	the	same	Contracts	list	pre-filtered).
+
+BACKEND	REQUIREMENTS
+
+GET/POST/PUT	/api/employees, 	GET	/api/employees/:id,
+
+GET	/api/employees/:id/contracts, 	GET/POST/PUT	/api/contracts.
+
+Server-side	overlap	validation	on	contract	save.
+
+DATABASE	REQUIREMENTS
+
+employees:	name, 	email, 	phone, 	departmentId, 	managerId	(ref	employees),
+
+jobPosition, 	workingScheduleId	(nullable), 	status, 	workLocation.
+
+departments:	name	(seed	4-5:	Finance, 	HR, 	Engineering, 	Sales, 	Support).
+
+contracts:	employeeId, 	startDate, 	endDate, 	wage, 	status(Draft/Running/Expired),
+
+departmentId, 	jobPosition, 	salaryStructureId	(nullable	for	now), 	workingScheduleId
+
+(nullable).
+
+BUSINESS	LOGIC
+
+Contract	status:	Draft	(future	start	date), 	Running	(current	date	within	range,
+
+no	end	date	or	end	date	in	future), 	Expired	(end	date	in	past).	One	Running
+
+contract	per	employee	per	overlapping	period	ΓÇö	enforce	server-side.
+
+DEMO	DATA
+
+Seed	10-15	employees	across	the	4-5	departments	with	realistic	Indian	names,
+
+each	with	1-2	contracts	(most	employees:	1	expired	+	1	running, 	showing	history).
+
+EDGE	CASES
+
+Saving	a	contract	that	would	create	two	concurrent	Running	contracts	for	the	same
+
+employee	must	fail	with	a	clear	error	message	shown	in	the	form.
+
+DESIGN	REQUIREMENTS
+
+Employee	cards	show	initials	avatar, 	name, 	job	title, 	department, 	status	dot.
+
+Contract	list	clearly	distinguishes	Running	(green)	vs	Expired	(gray)	vs	Draft
+
+(amber)	statuses.
+
+IMPLEMENTATION	RULES
+
+Reuse	the	DataTable	and	PageHeader	components	from	Prompt	1.	Keep	Employee	and
+
+Contract	as	separate	models/routes/controllers	even	though	built	in	one	prompt.
+
+Do	not	hardcode	employee	data	in	the	frontend	ΓÇö	always	fetch	from	the	API.
+
+PROMPT	4	ΓÇö	Attendance	&	Working	Schedule
+
+Prerequisite:	Prompt	3	(Employee	&	Contract)	complete.
+
+
+=== PAGE 16 ===
+
+ CONTEXT
+
+Attendance	and	Working	Schedule	capture	the	day-to-day	operational	side	of	HR
+
+that	later	feeds	both	the	Payroll	Dashboard	and	(optionally)	payroll	calculation.
+
+OBJECTIVE
+
+Build	Attendance	tracking	(list, 	form, 	corrections)	and	a	simplified	Working
+
+Schedule	module.
+
+USER	ROLES
+
+Employee:	create/view	own	attendance.	HR	Manager/Admin:	view	all, 	correct	any
+
+record.	HR	Payroll	roles:	read-only	for	reporting	purposes.
+
+FUNCTIONAL	REQUIREMENTS
+
+-	Working	Schedule	List/Form:	name, 	per-weekday	start/end/break	time, 	with
+
+		auto-computed	total	weekly	hours	(sum	of	(end-start-break)	per	active	day).
+
+		Assignable	to	an	Employee	or	Contract	via	a	dropdown.
+
+-	Attendance	List:	global	view	and	a	per-employee	filtered	view	(reached	via	the
+
+		Employee	Form's	smart	button).	Columns:	Employee, 	Check	In, 	Check	Out, 	Worked
+
+		Hours, 	Status.
+
+-	Attendance	Form:	shows	one	record's	detail;	Worked	Hours	and	Overtime	are
+
+		computed	automatically	from	Check	In/Check	Out	vs.	the	employee's	assigned
+
+		schedule;	manual	correction	of	Check	In/Check	Out	is	allowed	only	for	HR
+
+		Manager/Admin	roles.
+
+-	Simple	"Check	In"	/	"Check	Out"	action	buttons	for	the	logged-in	Employee	role
+
+		(P1	ΓÇö	build	a	simplified	static	button	rather	than	a	live	ticking	timer	widget
+
+		if	time	is	tight).
+
+UI	REQUIREMENTS
+
+Attendance	list	with	clear	status	badges	(Present=green, 	Late=amber,
+
+Absent=red).	Working	Schedule	form	shows	a	weekly	grid	identical	in	spirit	to	a
+
+timetable	(Day	/	Start	/	End	/	Break	/	Hours	columns).
+
+BACKEND	REQUIREMENTS
+
+GET/POST/PUT	/api/schedules, 	GET/POST/PUT	/api/attendance,
+
+POST	/api/attendance/check-in, 	PUT	/api/attendance/:id/check-out.
+
+DATABASE	REQUIREMENTS
+
+workingSchedules:	name, 	days:[{day, 	start, 	end, 	break}], 	weeklyHours	(computed
+
+on	save), 	status.
+
+attendance:	employeeId, 	date, 	checkIn, 	checkOut, 	workedHours, 	overtime,
+
+status(Present/Late/Absent), 	isManuallyEdited(bool).
+
+BUSINESS	LOGIC
+
+Status	derivation:	no	check-in	by	a	cutoff	time	ΓåÆ	Absent;	check-in	after	a
+
+threshold	ΓåÆ	Late;	otherwise	Present.	Worked	hours	=	checkOut	-	checkIn	(minus
+
+schedule	break	if	applicable).	Overtime	=	worked	hours	beyond	scheduled	hours
+
+for	that	day.
+
+DEMO	DATA
+
+Seed	2	weeks	of	attendance	for	all	seeded	employees, 	including	a	few	Late/Absent
+
+records	and	1-2	manually-corrected	records, 	so	the	dashboard	has	realistic
+
+variety.
+
+EDGE	CASES
+
+Missing	check-out	(still	"open"	attendance)	should	display	worked	hours	as	0.00
+
+or	"ΓÇö"	until	closed, 	not	crash	the	computation.
+
+DESIGN	REQUIREMENTS
+
+Consistent	status	badge	system	shared	with	other	modules	(reuse	the	StatusBadge
+
+component).
+
+IMPLEMENTATION	RULES
+
+Reuse	existing	DataTable/Form	components.	Do	not	duplicate	the	status-badge
+
+logic	ΓÇö	extend	the	shared	component	from	Prompt	1/3.
+
+PROMPT	5	ΓÇö	Time	Off	(Types,	Allocations,	Requests)	ΓÇö	Workflow	/	Approval	System
+
+Prerequisite:	Prompt	3	(Employee)	complete;	independent	of	Prompt	4.
+
+
+=== PAGE 17 ===
+
+ CONTEXT
+
+Time	Off	is	one	of	the	two	demo-critical	workflows	(the	other	is	Payroll).	It	must
+
+show	a	believable	approval	lifecycle	with	real	balance	math.
+
+OBJECTIVE
+
+Implement	Time	Off	Types	(policy	config), 	Allocations	(balance	grants), 	and
+
+Requests	(leave	transactions	with	Approve/Refuse), 	with	approved	allocation-linked
+
+requests	automatically	reducing	the	balance.
+
+USER	ROLES
+
+Employee:	create	own	requests, 	view	own	allocations/balance.	HR	Manager:	full
+
+CRUD	on	Types/Allocations, 	Approve/Refuse	Requests.	HR	Payroll	roles:	read-only
+
+(for	dashboard	purposes).	Admin:	full	access.
+
+FUNCTIONAL	REQUIREMENTS
+
+-	Time	Off	Types	List/Form:	name, 	unit	(Days/Hours), 	requiresAllocation	(bool),
+
+		approverLevel	(Manager/Officer), 	active	flag.
+
+-	Allocations	List/Form:	employee, 	type, 	allocated, 	taken	(computed), 	remaining
+
+		(computed), 	status	(needs	its	own	approval	before	the	balance	becomes	usable).
+
+-	Time	Off	Requests	List/Form:	employee, 	type, 	start/end	date, 	computed	duration,
+
+		status	(Draft/To	Approve/Approved/Refused), 	reason, 	linked	allocation	(if	the
+
+		type	requires	one).	Approve/Refuse	buttons	visible	to	HR	Manager/Admin	only.
+
+-	Business	rule:	approving	a	request	whose	type	requiresAllocation	must	find	the
+
+		employee's	matching	approved	Allocation	and	decrement	its	"remaining"	by	the
+
+		request's	duration;	if	remaining	would	go	negative, 	block	approval	with	a	clear
+
+		warning.
+
+-	All	three	(Types/Allocations/Requests)	are	reached	only	via	a	"Time	Off	
+
+Γû╝
+
+"
+
+		navbar	dropdown	ΓÇö	no	separate	top-level	pages.
+
+UI	REQUIREMENTS
+
+Requests	list	shows	clear	status	pills.	Allocation	list	exposes	Allocated/Taken/
+
+Remaining	at	a	glance.	Request	Form	shows	Approve/Refuse	buttons	only	to
+
+authorized	roles, 	disabled	otherwise.
+
+BACKEND	REQUIREMENTS
+
+CRUD	for	/api/timeoff-types, 	/api/allocations, 	/api/timeoff-requests, 	plus
+
+PUT	/api/timeoff-requests/:id/approve	and	PUT	/api/timeoff-requests/:id/refuse.
+
+DATABASE	REQUIREMENTS
+
+timeOffTypes:	name, 	unit, 	requiresAllocation, 	approverLevel, 	active.
+
+allocations:	employeeId, 	typeId, 	allocated, 	taken, 	remaining, 	status, 	validity.
+
+timeOffRequests:	employeeId, 	typeId, 	startDate, 	endDate, 	duration, 	status,
+
+allocationId	(nullable), 	reason, 	approverId.
+
+BUSINESS	LOGIC
+
+On	Approve	(with	allocation):	remaining	-=	duration, 	taken	+=	duration.	On
+
+Refuse:	no	balance	change, 	status	=	Refused.	Duration	is	computed	from
+
+start/end	date	based	on	the	type's	unit.
+
+DEMO	DATA
+
+Seed	3	Time	Off	Types	(Paid	Time	Off	ΓÇö	Days/requires	allocation/Manager	approval;
+
+Sick	Leave	ΓÇö	Days/no	allocation/Manager;	Comp	Off	ΓÇö	Hours/requires	allocation/
+
+Officer).	Seed	allocations	and	a	mix	of	Approved/To	Approve	requests	across
+
+employees, 	matching	the	numbers	shown	in	the	workflow	diagram	for	realism.
+
+EDGE	CASES
+
+Approving	a	request	for	a	type	that	requires	allocation	but	has	no	matching
+
+Allocation	record	should	show	a	clear	error	rather	than	silently	succeeding.
+
+DESIGN	REQUIREMENTS
+
+Consistent	status-pill	styling	with	Contracts/Attendance	modules.
+
+IMPLEMENTATION	RULES
+
+Group	these	three	sub-modules	under	one	"Time	Off"	feature	folder	on	both
+
+frontend	and	backend	for	maintainability, 	but	keep	them	as	separate	Mongoose
+
+models/collections.
+
+PROMPT	6	ΓÇö	Salary	Structures	&	Salary	Rules	(Payroll	Configuration	Engine)
+
+Prerequisite:	Prompt	3	(Contracts,	for	salaryStructureId	reference)	complete.
+

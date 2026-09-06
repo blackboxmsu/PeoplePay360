@@ -65,14 +65,16 @@ export default function EmployeesPage() {
 
   // Update counts from live data for selected employee
   const getEmpCounts = (empName) => {
-    const contracts = store.getContracts().filter(
-      (c) => c.employeeName.toLowerCase() === empName.toLowerCase()
+    if (!empName) return { contractsCount: 0, attendanceCount: 0, timeOffCount: 0 };
+    const target = empName.toLowerCase().trim();
+    const contracts = (store.getContracts() || []).filter(
+      (c) => c.employeeName && c.employeeName.toLowerCase().trim() === target
     );
-    const attendance = store.getAttendance().filter(
-      (a) => a.employeeName.toLowerCase() === empName.toLowerCase()
+    const attendance = (store.getAttendance() || []).filter(
+      (a) => a.employeeName && a.employeeName.toLowerCase().trim() === target
     );
-    const timeOff = store.getTimeOffRequests().filter(
-      (r) => r.employeeName.toLowerCase() === empName.toLowerCase()
+    const timeOff = (store.getTimeOffRequests() || []).filter(
+      (r) => r.employeeName && r.employeeName.toLowerCase().trim() === target
     );
     return {
       contractsCount: contracts.length,
@@ -348,12 +350,13 @@ export default function EmployeesPage() {
     );
   }
 
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.jobPosition.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredEmployees = (employees || []).filter((emp) => {
+    const sTerm = (searchTerm || '').toLowerCase().trim();
+    const name = (emp.name || '').toLowerCase();
+    const dept = (emp.department || '').toLowerCase();
+    const pos = (emp.jobPosition || emp.jobTitle || '').toLowerCase();
+    return name.includes(sTerm) || dept.includes(sTerm) || pos.includes(sTerm);
+  });
 
   // FORM VIEW (Requirement A1: Form view with essential work details and direct smart button links)
   if (selectedEmployee) {

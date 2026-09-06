@@ -26,7 +26,22 @@ export default function Navbar() {
   const [elapsedTime, setElapsedTime] = useState('6h56');
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  const displayName = user?.name || 'Aarav Mehta';
+  const getInitials = (name) => {
+    if (!name) return 'HR';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  const displayName = user?.name || (
+    role === 'admin' ? 'Raviraj Dhokiya' :
+    role === 'hr_manager' ? 'Meet Rathod' :
+    role === 'hr_payroll_user' ? 'Neev Chovatiya' :
+    role === 'hr_payroll_manager' ? 'Ujjwal Rathod' :
+    role === 'employee' ? 'Parth Solanki' : 'Meet Rathod'
+  );
   const roleLabels = {
     employee: 'Employee',
     hr_manager: 'HR Manager',
@@ -351,7 +366,7 @@ export default function Navbar() {
             title={`${displayName} (${roleDisplay})`}
           >
             <div className="user-avatar-small">
-              {displayName.substring(0, 2).toUpperCase()}
+              {getInitials(displayName)}
             </div>
             <span className="user-name-small">{displayName}</span>
             <ChevronDown size={12} style={{ color: '#64748B' }} />

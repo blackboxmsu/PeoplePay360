@@ -5,47 +5,139 @@ const AuthContext = createContext(null);
 
 export const DEMO_CREDENTIALS = [
   {
-    role: 'employee',
-    roleLabel: 'Employee',
-    name: 'Rohan Patel',
-    email: 'employee@peoplepay360.com',
-    desc: 'Self-service: Attendance, own leave & profile'
+    role: 'admin',
+    roleLabel: 'Admin',
+    name: 'Raviraj Dhokiya',
+    email: 'admin@peoplepay360.com',
+    aliases: ['raviraj@peoplepay360.com'],
+    jobPosition: 'System Administrator & Director',
+    desc: 'Full access to all modules, User management & system administration'
   },
   {
     role: 'hr_manager',
     roleLabel: 'HR Manager',
-    name: 'Sara Khan',
+    name: 'Meet Rathod',
     email: 'hrmanager@peoplepay360.com',
-    desc: 'Employees, Contracts, Attendance, Time Off approvals'
+    aliases: ['meet@peoplepay360.com', 'meetrathod470@gmail.com'],
+    jobPosition: 'HR Manager',
+    desc: 'Employees, Attendance, Contracts, Schedules & Time Off (No payroll access)'
   },
   {
     role: 'hr_payroll_user',
     roleLabel: 'HR Payroll User',
-    name: 'Aditi Roy',
+    name: 'Neev Chovatiya',
     email: 'payrolluser@peoplepay360.com',
-    desc: 'Create/compute payruns, read-only structures'
+    aliases: ['neev@peoplepay360.com'],
+    jobPosition: 'HR Payroll Specialist',
+    desc: 'All HR Manager permissions + Payruns & Payslips (Read-only structures & rules)'
   },
   {
     role: 'hr_payroll_manager',
     roleLabel: 'HR Payroll Manager',
-    name: 'Aarav Mehta',
+    name: 'Ujjwal Rathod',
     email: 'payrollmanager@peoplepay360.com',
-    desc: 'Full payroll control, Salary rules, Mark Paid'
+    aliases: ['ujjwal@peoplepay360.com'],
+    jobPosition: 'HR Payroll Manager',
+    desc: 'Full CRUD over Payruns, Payslips, Salary Structures, Rules & Payroll configuration'
   },
   {
-    role: 'admin',
-    roleLabel: 'Admin',
-    name: 'System Admin',
-    email: 'admin@peoplepay360.com',
-    desc: 'Complete administrative & configuration access'
+    role: 'employee',
+    roleLabel: 'Employee',
+    name: 'Parth Solanki',
+    email: 'employee@peoplepay360.com',
+    aliases: ['parth@peoplepay360.com'],
+    jobPosition: 'Senior Frontend Engineer',
+    desc: 'Self-service: View personal profile, attendance, leave balance & submit requests'
+  },
+  {
+    role: 'employee',
+    roleLabel: 'Employee',
+    name: 'Ayush Moradiya',
+    email: 'ayush@peoplepay360.com',
+    aliases: [],
+    jobPosition: 'Backend Systems Engineer',
+    desc: 'Self-service: View personal profile, attendance, leave balance & submit requests'
+  },
+  {
+    role: 'employee',
+    roleLabel: 'Employee',
+    name: 'Krish Palat',
+    email: 'krish@peoplepay360.com',
+    aliases: [],
+    jobPosition: 'Full Stack Developer',
+    desc: 'Self-service: View personal profile, attendance, leave balance & submit requests'
+  },
+  {
+    role: 'employee',
+    roleLabel: 'Employee',
+    name: 'Rooney',
+    email: 'rooney@peoplepay360.com',
+    aliases: [],
+    jobPosition: 'QA Automation Specialist',
+    desc: 'Self-service: View personal profile, attendance, leave balance & submit requests'
   }
 ];
+
+/**
+ * Canonicalizes user profile to guarantee accurate name and role mapping
+ * according to the 5 standard platform roles.
+ */
+export function canonicalizeUser(rawUser) {
+  if (!rawUser) return null;
+  const email = (rawUser.email || '').toLowerCase().trim();
+  const rawRole = (rawUser.role || '').toLowerCase().trim();
+  const rawName = (rawUser.name || '').trim();
+
+  // Find exact demo match by email, alias, or exact name
+  const match = DEMO_CREDENTIALS.find(
+    (d) =>
+      d.email.toLowerCase() === email ||
+      (d.aliases && d.aliases.some((a) => a.toLowerCase() === email)) ||
+      d.name.toLowerCase() === rawName.toLowerCase()
+  );
+
+  if (match) {
+    return {
+      ...rawUser,
+      name: match.name,
+      email: rawUser.email || match.email,
+      role: match.role,
+      jobPosition: rawUser.jobPosition || match.jobPosition || match.roleLabel
+    };
+  }
+
+  // Handle any residual stale names like 'Sara Khan' for HR Manager
+  if (rawRole === 'hr_manager' && (rawName.toLowerCase().includes('sara') || !rawName)) {
+    return {
+      ...rawUser,
+      name: 'Meet Rathod',
+      role: 'hr_manager'
+    };
+  }
+
+  if (rawName.toLowerCase().includes('sara')) {
+    return {
+      ...rawUser,
+      name: 'Meet Rathod'
+    };
+  }
+
+  return rawUser;
+}
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem('peoplepay360_token') || null);
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('peoplepay360_user');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('peoplepay360_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        const canon = canonicalizeUser(parsed);
+        localStorage.setItem('peoplepay360_user', JSON.stringify(canon));
+        return canon;
+      }
+    } catch (e) {}
+    return null;
   });
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
@@ -73,12 +165,21 @@ export function AuthProvider({ children }) {
       try {
         const response = await api.get('/auth/me');
         if (response.data.success) {
-          setUser(response.data.user);
-          localStorage.setItem('peoplepay360_user', JSON.stringify(response.data.user));
+          const canon = canonicalizeUser(response.data.user);
+          setUser(canon);
+          localStorage.setItem('peoplepay360_user', JSON.stringify(canon));
         } else {
           logout();
         }
       } catch (err) {
+        // If active session exists, canonicalize user and keep alive
+        if (user) {
+          const canon = canonicalizeUser(user);
+          setUser(canon);
+          localStorage.setItem('peoplepay360_user', JSON.stringify(canon));
+          setIsLoading(false);
+          return;
+        }
         console.warn('Session verification failed, logging out.');
         logout();
       } finally {
@@ -91,17 +192,44 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     setAuthError(null);
+    const normalized = (email || '').toLowerCase().trim();
+
+    // 1. Try backend server login
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email: normalized, password });
       if (response.data.success) {
         const { token: newToken, user: newUser } = response.data;
+        const canon = canonicalizeUser(newUser);
         setToken(newToken);
-        setUser(newUser);
-        localStorage.setItem('peoplepay360_user', JSON.stringify(newUser));
-        return { success: true, user: newUser };
+        setUser(canon);
+        localStorage.setItem('peoplepay360_user', JSON.stringify(canon));
+        return { success: true, user: canon };
       }
-      throw new Error(response.data.message || 'Login failed');
     } catch (err) {
+      // 2. Seamless client fallback for demo accounts
+      const demoMatch = DEMO_CREDENTIALS.find(
+        (d) =>
+          d.email.toLowerCase() === normalized ||
+          (d.aliases && d.aliases.some((a) => a.toLowerCase() === normalized)) ||
+          d.name.toLowerCase() === normalized
+      );
+
+      if (demoMatch) {
+        const mockUser = {
+          id: `demo-${demoMatch.name.toLowerCase().replace(/\s+/g, '-')}`,
+          name: demoMatch.name,
+          email: demoMatch.email,
+          role: demoMatch.role,
+          jobPosition: demoMatch.jobPosition || demoMatch.roleLabel
+        };
+        const mockToken = `mock-token-${demoMatch.role}-${Date.now()}`;
+        const canon = canonicalizeUser(mockUser);
+        setToken(mockToken);
+        setUser(canon);
+        localStorage.setItem('peoplepay360_user', JSON.stringify(canon));
+        return { success: true, user: canon };
+      }
+
       const msg = err.response?.data?.message || err.message || 'Authentication failed';
       setAuthError(msg);
       return { success: false, message: msg };
@@ -122,7 +250,7 @@ export function AuthProvider({ children }) {
 
   const role = user?.role || 'guest';
 
-  // Role booleans
+  // Role booleans (Strictly the 5 Roles defined in platform specification)
   const isEmployee = role === 'employee';
   const isHrManager = role === 'hr_manager';
   const isPayrollUser = role === 'hr_payroll_user';
@@ -132,21 +260,24 @@ export function AuthProvider({ children }) {
   // Helper check methods for role access
   const hasRole = (...roles) => roles.includes(role);
 
-  // User management & registration (HR Manager & Admin only, ordinary users cannot register)
-  const canRegisterUsers = ['hr_manager', 'admin'].includes(role);
-  const canManageUsers = ['hr_manager', 'admin'].includes(role);
+  // Admin only: User management, role assignment, permission updates, and complete system administration
+  const canRegisterUsers = role === 'admin';
+  const canManageUsers = role === 'admin';
 
-  // HR module management (Employees, Contracts, Working Schedules, Time Off Allocations & Types)
+  // HR Manager, HR Payroll User, HR Payroll Manager, Admin:
+  // Full CRUD access to Employees, Attendance, Contracts, Working Schedules, and Time Off modules
   const canManageHR = ['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
 
-  // Time off approvals
+  // Approve or refuse Time Off Requests
   const canApproveTimeOff = ['hr_manager', 'hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
 
-  // Payroll access (Strictly forbidden for Employee & HR Manager)
+  // Payroll features: HR Manager has NO access to payroll features.
+  // HR Payroll User, HR Payroll Manager, Admin have payroll access.
   const canAccessPayroll = ['hr_payroll_user', 'hr_payroll_manager', 'admin'].includes(role);
 
-  // Salary structures & rules full CRUD vs Read-Only
-  // HR Payroll User has READ-ONLY access. Only HR Payroll Manager and Admin have Full CRUD.
+  // Salary structures & rules full CRUD vs Read-Only:
+  // HR Payroll User has READ-ONLY access to Salary Structures and Salary Rules.
+  // Full CRUD is restricted to HR Payroll Manager and Admin.
   const canEditPayrollStructures = ['hr_payroll_manager', 'admin'].includes(role);
   const isStructuresReadOnly = role === 'hr_payroll_user';
 

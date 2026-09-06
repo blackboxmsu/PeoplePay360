@@ -72,7 +72,7 @@ export function downloadPayslipPDF(payslip, companyInfo = {}) {
   doc.text('Employee Name:', col1, y + 8);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...darkNavy);
-  doc.text(payslip.employeeName || 'Rohan Patel', col2, y + 8);
+  doc.text(payslip.employeeName || 'Parth Solanki', col2, y + 8);
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(...slateMuted);

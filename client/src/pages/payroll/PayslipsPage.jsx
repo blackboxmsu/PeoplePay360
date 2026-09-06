@@ -96,7 +96,7 @@ function aggregatePayslips(payruns, employees, structures) {
 
 export default function PayslipsPage() {
   const { user, isEmployeeSelf, canAccessPayroll } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
 
   const [payruns, setPayruns] = useState(() => store.getPayruns());
   const [employees, setEmployees] = useState(() => store.getEmployees());

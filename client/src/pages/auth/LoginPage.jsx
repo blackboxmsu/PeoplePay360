@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth, DEMO_CREDENTIALS } from '../context/AuthContext';
+import { useAuth, DEMO_CREDENTIALS } from '../../context/AuthContext';
 import { Shield, Lock, Mail, AlertCircle, ArrowRight, CheckCircle2, X, Sparkles } from 'lucide-react';
 
 export default function LoginPage() {
@@ -8,7 +8,7 @@ export default function LoginPage() {
   const location = useLocation();
   const { login, quickDemoLogin, authError, isAuthenticated } = useAuth();
 
-  const [email, setEmail] = useState('payrollmanager@peoplepay360.com');
+  const [email, setEmail] = useState('admin@peoplepay360.com');
   const [password, setPassword] = useState('Demo@123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

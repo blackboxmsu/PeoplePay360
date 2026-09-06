@@ -20,8 +20,8 @@ import {
   Save,
   X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import store from '../services/dataStore';
+import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
 
 export default function EmployeesPage() {
   const { user, isEmployee, canManageHR, role } = useAuth();
@@ -44,7 +44,7 @@ export default function EmployeesPage() {
     name: '',
     jobPosition: '',
     department: 'Engineering',
-    manager: 'Sara Khan',
+    manager: 'Meet Rathod',
     workingScheduleId: 'ws-1',
     company: 'OxP Pvt Ltd',
     workLocation: 'Mumbai',
@@ -90,7 +90,7 @@ export default function EmployeesPage() {
       name: '',
       jobPosition: '',
       department: 'Engineering',
-      manager: 'Sara Khan',
+      manager: 'Meet Rathod',
       workingScheduleId: workingSchedules[0]?.id || 'ws-1',
       company: 'OxP Pvt Ltd',
       workLocation: 'Mumbai',
@@ -138,23 +138,29 @@ export default function EmployeesPage() {
     }
   };
 
-  // Self-service employee record
-  const ownEmployeeRecord = {
+  // Self-service employee record: match logged in employee from master store
+  const matchedEmp = employees.find(
+    (e) =>
+      (user?.email && e.workEmail?.toLowerCase() === user.email.toLowerCase()) ||
+      (user?.name && e.name?.toLowerCase() === user.name.toLowerCase())
+  );
+
+  const ownEmployeeRecord = matchedEmp || {
     id: 'emp-self',
-    initials: user?.name ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'RP',
-    name: user?.name || 'Rohan Patel',
-    jobPosition: 'Junior Software Engineer',
+    initials: user?.name ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'PS',
+    name: user?.name || 'Parth Solanki',
+    jobPosition: 'Senior Frontend Engineer',
     department: 'Engineering',
-    manager: 'Sara Khan (HR Manager)',
+    manager: 'Raviraj Dhokiya',
     workingSchedule: 'Tech Flexible 35 Hours',
     company: 'OxP Pvt Ltd',
     workLocation: 'Mumbai Tech Hub',
     employmentType: 'Full-time',
     status: 'Active',
     workEmail: user?.email || 'employee@peoplepay360.com',
-    phone: '+91 98765 43219',
+    phone: '+91 98765 00005',
     contractsCount: 1,
-    attendanceCount: 18,
+    attendanceCount: 20,
     timeOffCount: 2,
     allocatedLeaves: 20,
     leaveBalance: 16
@@ -739,7 +745,7 @@ export default function EmployeesPage() {
                     className="field-input"
                     value={formData.manager}
                     onChange={(e) => setFormData({ ...formData, manager: e.target.value })}
-                    placeholder="e.g. Sara Khan"
+                    placeholder="e.g. Meet Rathod"
                   />
                 </div>
 

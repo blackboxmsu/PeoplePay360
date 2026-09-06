@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, ArrowLeft, Clock, Calendar, Check, Save, Trash2, Shield, Info, Edit2 } from 'lucide-react';
-import store from '../services/dataStore';
-import { useAuth } from '../context/AuthContext';
+import store from '../../services/dataStore';
+import { useAuth } from '../../context/AuthContext';
 
 const DEFAULT_DAYS = [
   { day: 'Monday', active: true, startTime: '09:00', endTime: '18:00', breakHours: 1.0 },

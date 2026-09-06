@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import store from '../services/dataStore';
-import { downloadPayslipPDF } from '../utils/pdfGenerator';
+import { useAuth } from '../../context/AuthContext';
+import store from '../../services/dataStore';
+import { downloadPayslipPDF } from '../../utils/pdfGenerator';
 import {
   IndianRupee,
   Users,
@@ -24,7 +24,13 @@ export default function DashboardPage() {
   const { user, role, isEmployeeSelf } = useAuth();
   const navigate = useNavigate();
 
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || (
+    role === 'admin' ? 'Raviraj Dhokiya' :
+    role === 'hr_manager' ? 'Meet Rathod' :
+    role === 'hr_payroll_user' ? 'Neev Chovatiya' :
+    role === 'hr_payroll_manager' ? 'Ujjwal Rathod' :
+    'Parth Solanki'
+  );
 
   // Store data state
   const [employees, setEmployees] = useState(() => store.getEmployees());
@@ -375,6 +381,10 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Department</span>
                 <strong style={{ color: 'var(--text-primary)' }}>{myEmp?.department || 'Engineering'}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Reporting Manager</span>
+                <strong style={{ color: 'var(--text-primary)' }}>{myEmp?.manager || 'Sara Khan (HR)'}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid var(--border-subtle)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>Working Schedule</span>

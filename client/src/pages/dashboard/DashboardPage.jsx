@@ -70,14 +70,36 @@ export default function DashboardPage() {
     const targetEmail = (user?.email || '').toLowerCase().trim();
     const targetId = user?.employeeId ? String(user.employeeId) : null;
 
-    return (
+    const found =
       (targetId && list.find(e => e.id === targetId || e.customId === targetId || String(e._id) === targetId)) ||
       (targetEmail && list.find(e => e.workEmail && e.workEmail.toLowerCase().trim() === targetEmail)) ||
-      (targetName && list.find(e => e.name && e.name.toLowerCase().trim() === targetName)) ||
-      list.find(e => e.name === 'Rohan Patel' || e.id === 'emp-5') ||
-      list[0]
-    );
-  }, [employees, user, userName]);
+      (targetName && list.find(e => e.name && e.name.toLowerCase().trim() === targetName));
+
+    if (found) return found;
+
+    // Fallback if not yet in list: dynamically synthesize own profile matching logged in identity
+    return {
+      id: user?.id || user?._id || 'emp-self',
+      customId: 'emp-self',
+      name: user?.name || userName,
+      jobPosition: user?.jobPosition || (role === 'admin' ? 'System Administrator & Managing Director' : role === 'hr_manager' ? 'HR Manager' : role === 'hr_payroll_user' ? 'HR Payroll Specialist' : role === 'hr_payroll_manager' ? 'HR Payroll Manager' : 'Senior Software Engineer'),
+      department: role === 'admin' ? 'Operations & Admin' : role === 'hr_manager' ? 'Human Resources' : role === 'hr_payroll_user' || role === 'hr_payroll_manager' ? 'Finance & Payroll' : 'Engineering',
+      manager: role === 'admin' ? 'Board of Directors' : 'Raviraj Dhokiya',
+      workingSchedule: 'Standard 40 Hours',
+      workingScheduleId: 'ws-1',
+      company: 'OxP Pvt Ltd',
+      workLocation: 'Mumbai Head Office',
+      employmentType: 'Full-time',
+      status: 'Active',
+      workEmail: user?.email || '',
+      phone: '+91 98765 00002',
+      contractsCount: 1,
+      attendanceCount: 22,
+      timeOffCount: 2,
+      allocatedLeaves: 20,
+      leaveBalance: 16
+    };
+  }, [employees, user, userName, role]);
 
   const myContract = useMemo(() => {
     if (!myEmp) return null;

@@ -141,26 +141,27 @@ export default function EmployeesPage() {
   // Self-service employee record: match logged in employee from master store
   const matchedEmp = employees.find(
     (e) =>
-      (user?.email && e.workEmail?.toLowerCase() === user.email.toLowerCase()) ||
-      (user?.name && e.name?.toLowerCase() === user.name.toLowerCase())
+      (user?.employeeId && (e.id === String(user.employeeId) || e.customId === String(user.employeeId) || String(e._id) === String(user.employeeId))) ||
+      (user?.email && e.workEmail?.toLowerCase().trim() === user.email.toLowerCase().trim()) ||
+      (user?.name && e.name?.toLowerCase().trim() === user.name.toLowerCase().trim())
   );
 
   const ownEmployeeRecord = matchedEmp || {
-    id: 'emp-self',
-    initials: user?.name ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'PS',
-    name: user?.name || 'Parth Solanki',
-    jobPosition: 'Senior Frontend Engineer',
-    department: 'Engineering',
-    manager: 'Raviraj Dhokiya',
-    workingSchedule: 'Tech Flexible 35 Hours',
+    id: user?.id || user?._id || 'emp-self',
+    initials: user?.name ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'ME',
+    name: user?.name || (role === 'admin' ? 'Raviraj Dhokiya' : role === 'hr_manager' ? 'Meet Rathod' : role === 'hr_payroll_user' ? 'Neev Chovatiya' : role === 'hr_payroll_manager' ? 'Ujjwal Rathod' : 'Parth Solanki'),
+    jobPosition: user?.jobPosition || (role === 'admin' ? 'Managing Director' : role === 'hr_manager' ? 'HR Manager' : role === 'hr_payroll_user' ? 'HR Payroll Specialist' : role === 'hr_payroll_manager' ? 'HR Payroll Manager' : 'Senior Software Engineer'),
+    department: role === 'admin' ? 'Operations & Admin' : role === 'hr_manager' ? 'Human Resources' : role === 'hr_payroll_user' || role === 'hr_payroll_manager' ? 'Finance & Payroll' : 'Engineering',
+    manager: role === 'admin' ? 'Board of Directors' : 'Raviraj Dhokiya',
+    workingSchedule: 'Standard 40 Hours',
     company: 'OxP Pvt Ltd',
-    workLocation: 'Mumbai Tech Hub',
+    workLocation: 'Mumbai Head Office',
     employmentType: 'Full-time',
     status: 'Active',
     workEmail: user?.email || 'employee@peoplepay360.com',
-    phone: '+91 98765 00005',
+    phone: '+91 98765 00001',
     contractsCount: 1,
-    attendanceCount: 20,
+    attendanceCount: 22,
     timeOffCount: 2,
     allocatedLeaves: 20,
     leaveBalance: 16

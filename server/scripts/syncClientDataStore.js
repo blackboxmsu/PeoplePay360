@@ -11,13 +11,15 @@ const targetDataStorePath = path.resolve(__dirname, '../../client/src/services/d
 const rawData = fs.readFileSync(masterDataPath, 'utf-8');
 const data = JSON.parse(rawData);
 
-const fileHeader = `// PeoplePay360 Centralized Data Store & State Manager
+const fileContent = `// PeoplePay360 Centralized Data Store & State Manager
 // Coordinates HR Configuration, Master Data, Operations, and Payroll
-// Upgraded with full ~50 records per schema
+// Upgraded with full 60 interconnected records per schema & multi-month attendance
 
-const STORAGE_KEY = 'peoplepay360_master_data_v3';
+const STORAGE_KEY = 'peoplepay360_master_data_v4';
 
 // --- INITIAL MASTER SEED DATA ---
+
+export const SEED_DEPARTMENTS = ${JSON.stringify(data.departments, null, 2)};
 
 export const SEED_WORKING_SCHEDULES = ${JSON.stringify(data.workingSchedules, null, 2)};
 
@@ -52,6 +54,7 @@ class DataStore {
         if (serialized) {
           const parsed = JSON.parse(serialized);
           return {
+            departments: parsed.departments || SEED_DEPARTMENTS,
             workingSchedules: parsed.workingSchedules || SEED_WORKING_SCHEDULES,
             employees: parsed.employees || SEED_EMPLOYEES,
             contracts: parsed.contracts || SEED_CONTRACTS,
@@ -68,6 +71,7 @@ class DataStore {
       console.warn('Error reading from localStorage, using seed data', e);
     }
     return {
+      departments: SEED_DEPARTMENTS,
       workingSchedules: SEED_WORKING_SCHEDULES,
       employees: SEED_EMPLOYEES,
       contracts: SEED_CONTRACTS,
@@ -93,6 +97,7 @@ class DataStore {
 
   resetToSeedData() {
     this.data = {
+      departments: SEED_DEPARTMENTS,
       workingSchedules: SEED_WORKING_SCHEDULES,
       employees: SEED_EMPLOYEES,
       contracts: SEED_CONTRACTS,
@@ -162,6 +167,22 @@ class DataStore {
     this.save();
   }
 
+  // --- Departments ---
+  getDepartments() {
+    if (this.data.departments && this.data.departments.length > 0) {
+      return this.data.departments;
+    }
+    const set = new Set();
+    const depts = [];
+    (this.data.employees || []).forEach((e) => {
+      if (e.department && !set.has(e.department)) {
+        set.add(e.department);
+        depts.push({ id: \`dept-\${depts.length + 1}\`, name: e.department });
+      }
+    });
+    return depts;
+  }
+
   // --- Employees (A1) ---
   getEmployees() {
     return this.data.employees;
@@ -221,8 +242,8 @@ class DataStore {
     const pStart = new Date(periodStart);
     const pEnd = new Date(periodEnd);
 
-    const empContracts = this.data.contracts.filter(
-      (c) => c.employeeId === employeeIdOrName || c.employeeName.toLowerCase() === (employeeIdOrName || '').toLowerCase()
+    const empContracts = (this.data.contracts || []).filter(
+      (c) => c.employeeId === employeeIdOrName || (c.employeeName && employeeIdOrName && c.employeeName.toLowerCase().trim() === String(employeeIdOrName).toLowerCase().trim())
     );
 
     const applicable = empContracts.filter((c) => {
@@ -419,5 +440,5 @@ export const store = new DataStore();
 export default store;
 `;
 
-fs.writeFileSync(targetDataStorePath, fileHeader, 'utf-8');
-console.log(`Successfully synchronized ${targetDataStorePath}!`);
+fs.writeFileSync(targetDataStorePath, fileContent, 'utf-8');
+console.log(`[Sync] ✓ Synced master data to client dataStore: ${targetDataStorePath}`);

@@ -6,7 +6,7 @@ import { Search, Plus, ArrowLeft, Check, X, Shield, CalendarPlus, Filter } from 
 
 export default function TimeOffRequestsPage() {
   const { user, isEmployeeSelf, canManageHR } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
   const [searchParams, setSearchParams] = useSearchParams();
   const employeeParam = searchParams.get('employee') || '';
 

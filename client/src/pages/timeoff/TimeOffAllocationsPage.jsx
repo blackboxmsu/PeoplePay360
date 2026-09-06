@@ -6,7 +6,7 @@ import { Search, Plus, ArrowLeft, Check, X, Shield, Filter } from 'lucide-react'
 
 export default function TimeOffAllocationsPage() {
   const { user, isEmployeeSelf, canManageHR } = useAuth();
-  const userName = user?.name || 'Rohan Patel';
+  const userName = user?.name || 'Parth Solanki';
   const [searchParams, setSearchParams] = useSearchParams();
   const employeeParam = searchParams.get('employee') || '';
 
